@@ -9,11 +9,10 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///Returns unmodifiable list, so you cannot update it.
   ///If you want to update it, you have to use the setter method
   List<Widget> get widgetList=>List.unmodifiable(_widgetList);
-  ///On passing new value, the [refresh] method is called again to calculate new value.
+  ///On passing new value, the [refreshSpecific] method is called again to calculate new value.
   set widgetList(List<Widget> newValue){
     _intrinsicHeightCalculator.itemList=newValue;
     super.value=true;
-    super.removeListener(() { });
     super.addListener(() {
       if(!super.value){
         _widgetList=newValue;
@@ -22,10 +21,6 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   }
 
-  void refresh(Widget widget,int currentIndex){
-    _widgetList[currentIndex]=widget;
-    super.value=true;
-  }
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 
   int _refreshCount = 0;

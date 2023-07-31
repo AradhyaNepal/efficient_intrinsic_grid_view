@@ -28,7 +28,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (int j = 0; j < i + 1; j++)
-                _InnerItem(j: j,index: i,)
+                _InnerItem(itemCount: j,index: i,)
             ],
           ),
         ),
@@ -57,11 +57,12 @@ class _GridviewSolutionState extends State<GridviewSolution> {
 class _InnerItem extends StatefulWidget {
   const _InnerItem({
     super.key,
-    required this.j,
-    required this.index,
+    required this.itemCount,
+  required this.index,
+    required
   });
 
-  final int j;
+  final int itemCount;
   final int index;
 
   @override
@@ -78,14 +79,13 @@ class _InnerItemState extends State<_InnerItem> {
         setState(() {
 
         });
-        ControllerInheritedWidget.getController(context).refresh(widget, widget.index);
       },
       child: Container(
         color: Colors.red,
         margin: const EdgeInsets.only(bottom: 2),
         height: height,
         child: Text(
-          "Item ${widget.j + 1}",
+          "Item ${widget.itemCount + 1}",
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: Colors.white,
