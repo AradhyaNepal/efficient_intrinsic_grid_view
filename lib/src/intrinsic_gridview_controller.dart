@@ -47,7 +47,6 @@ class IntrinsicController extends ValueNotifier<bool> {
     await Future.delayed(Duration.zero);
     _rowsIntrinsicHeight =
         await _intrinsicHeightCalculator.getOverallMaxHeight();
-    print("Rebuild");
     super.value = false;
   }
 }
