@@ -3,35 +3,58 @@ import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
 
 class IntrinsicController extends ValueNotifier<bool> {
+  final Axis axis;
   final int columnCount;
-  final List<Widget> widgetList;
+  List<Widget> _widgetList;
+  ///Returns unmodifiable list, so you cannot update it.
+  ///If you want to update it, you have to use the setter method
+  List<Widget> get widgetList=>List.unmodifiable(_widgetList);
+  ///On passing new value, the [refresh] method is called again to calculate new value.
+  set widgetList(List<Widget> newValue){
+    _intrinsicHeightCalculator.itemList=newValue;
+    super.value=true;
+    super.removeListener(() { });
+    super.addListener(() {
+      if(!super.value){
+        _widgetList=newValue;
+      }
+    });
+
+  }
+
+  void refresh(Widget widget,int currentIndex){
+    _widgetList[currentIndex]=widget;
+    super.value=true;
+  }
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 
-  IntrinsicDelegate get intrinsicRowGridDelegate =>
-      IntrinsicDelegate(
+  int _refreshCount = 0;
+
+  IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: 3,
-        rowsIntrinsicHeight: rowsIntrinsicHeight,
+        rowsIntrinsicHeight: _rowsIntrinsicHeight,
         totalItems: widgetList.length,
-        gridViewRowHeightRefresh: 0,
+        gridViewRowHeightRefresh: _refreshCount,
       );
   List<double> _rowsIntrinsicHeight = [];
+  bool get isInitialized => _rowsIntrinsicHeight.isNotEmpty;
 
-  ///Empty List means its loading.
-  ///
-  ///Have caching, till the new value is not calculated, use same previous value.
-  List<double> get rowsIntrinsicHeight => _rowsIntrinsicHeight;
 
-  bool get isLoading => rowsIntrinsicHeight.isEmpty;
 
-  Widget initRendering() => _intrinsicHeightCalculator.initByRendering();
+  Widget initRendering() {
+    if (!super.value) return const SizedBox();
+    return _intrinsicHeightCalculator.initByRendering();
+  }
 
   IntrinsicController({
     required this.columnCount,
-    required this.widgetList,
-  }) : super(true) {
+    required List<Widget> widgetList,
+    this.axis=Axis.vertical,
+  }) :_widgetList=widgetList, super(true) {
     _intrinsicHeightCalculator = IntrinsicSizeCalculator(
       itemList: widgetList,
       columnCount: columnCount,
+      axis: axis,
     );
   }
 
@@ -42,11 +65,13 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///
   /// ->UI Uses Old Cache Max Height List while New Max Height is being calculated <-
   Future<void> calculateMaxHeight() async {
+    if (!super.value) return;
     //Delay to calculate Height in next frame after initRendering is done,
     // else max height is calculated using old data.
     await Future.delayed(Duration.zero);
     _rowsIntrinsicHeight =
         await _intrinsicHeightCalculator.getOverallMaxHeight();
+    _refreshCount++;
     super.value = false;
   }
 }
