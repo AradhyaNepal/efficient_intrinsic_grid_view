@@ -1,6 +1,6 @@
+import 'package:efficient_intrinsic_gridview/efficient_intrinsic_grid_view.dart';
 import 'package:flutter/material.dart';
-import 'package:intrinsic_gridview/intrinsic_gridview/intrinsic_gridview.dart';
-import 'package:intrinsic_gridview/intrinsic_gridview/utils/intrinsic_gridview_controller.dart';
+
 
 class GridviewSolution extends StatelessWidget {
   const GridviewSolution({super.key});
@@ -37,8 +37,8 @@ class GridviewSolution extends StatelessWidget {
         ),
     ];
     return Scaffold(
-      body: IntrinsicGridView(
-        controller: IntrinsicGridviewController(
+      body: EfficientIntrinsicGridView(
+        controller: IntrinsicController(
           columnCount: 3,
           widgetList: itemList,
         ),

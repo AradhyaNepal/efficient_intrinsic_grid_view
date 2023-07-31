@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intrinsic_gridview/intrinsic_gridview/utils/intrinsic_row_grid_delegate.dart';
 
-import '../utils/intrinsic_height_calculator.dart';
+import '../efficient_intrinsic_grid_view.dart';
 
-class IntrinsicGridviewController extends ValueNotifier<bool> {
+class IntrinsicController extends ValueNotifier<bool> {
   final int columnCount;
   final List<Widget> widgetList;
   late IntrinsicHeightCalculator _intrinsicHeightCalculator;
@@ -26,7 +25,7 @@ class IntrinsicGridviewController extends ValueNotifier<bool> {
 
   Widget initRendering() => _intrinsicHeightCalculator.initByRendering();
 
-  IntrinsicGridviewController({
+  IntrinsicController({
     required this.columnCount,
     required this.widgetList,
   }) : super(true) {

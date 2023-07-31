@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import '../efficient_intrinsic_grid_view.dart';
 
-import 'utils/intrinsic_gridview_controller.dart';
+///This gridview uses GridView.builder to be efficient, so it will only render widget which user sees, plus some other for buffer.
+class EfficientIntrinsicGridView extends StatelessWidget {
+  final IntrinsicController controller;
 
-class IntrinsicGridView extends StatelessWidget {
-  final IntrinsicGridviewController controller;
-
-  const IntrinsicGridView({
+  const EfficientIntrinsicGridView({
     super.key,
     required this.controller,
   });
