@@ -1,0 +1,22 @@
+name: efficient_intrinsic_gridview
+description: This widget calculate intrinsic height of widget in an efficient manner (i.e By using Gridview.builder instead of ScrollView). Only only the item that user can see will be rendered with some buffer, which make sure app does not crash on very long list of data
+
+version: 0.0.1-unstable-release+1
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+flutter:
+  uses-material-design: true
+
