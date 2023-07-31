@@ -5,10 +5,15 @@ import '../efficient_intrinsic_gridview.dart';
 ///This gridview uses GridView.builder to be efficient, so it will only render widget which user sees, plus some other for buffer.
 class EfficientIntrinsicGridView extends StatelessWidget {
   final IntrinsicController controller;
+  ///Wraps widget with extra SingleChildScrollView to prevent overflow
+  ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact
+  final bool preventOverflow;
+
 
   const EfficientIntrinsicGridView({
     super.key,
     required this.controller,
+    this.preventOverflow=false,
   });
 
   @override
@@ -36,7 +41,13 @@ class EfficientIntrinsicGridView extends StatelessWidget {
                     child: GridView.builder(
                       gridDelegate: controller.intrinsicRowGridDelegate,
                       itemBuilder: (context, index) {
-                        return controller.widgetList[index];
+                        final child=controller.widgetList[index];
+                        if(preventOverflow){
+                          return SingleChildScrollView(child:child );//Todo: Add physics
+                        }else{
+                          return child;
+                        }
+
                       },
                       itemCount: controller.widgetList.length,
                     ),

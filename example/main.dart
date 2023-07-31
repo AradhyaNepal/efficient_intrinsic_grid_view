@@ -48,6 +48,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
         ],
       ),
       body: EfficientIntrinsicGridView(
+        preventOverflow: true,
         controller:controller ,
       ),
     );
