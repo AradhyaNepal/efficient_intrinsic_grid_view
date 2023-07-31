@@ -5,8 +5,8 @@ import 'package:flutter/rendering.dart';
 ///Only use it for Vertical Scrolling.
 ///
 ///We can provide different height of each row using this Delegate
-class IntrinsicRowGridDelegate extends SliverGridDelegate {
-  const IntrinsicRowGridDelegate({
+class IntrinsicDelegate extends SliverGridDelegate {
+  const IntrinsicDelegate({
     required this.crossAxisCount,
     required this.rowsIntrinsicHeight,
     required this.totalItems,
@@ -63,7 +63,7 @@ class IntrinsicRowGridDelegate extends SliverGridDelegate {
   }
 
   @override
-  bool shouldRelayout(IntrinsicRowGridDelegate oldDelegate) {
+  bool shouldRelayout(IntrinsicDelegate oldDelegate) {
     return oldDelegate.crossAxisCount != crossAxisCount
         || oldDelegate.mainAxisSpacing != mainAxisSpacing
         || oldDelegate.crossAxisSpacing != crossAxisSpacing

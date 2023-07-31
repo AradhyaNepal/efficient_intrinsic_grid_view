@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-class IntrinsicHeightCalculator{
+class IntrinsicSizeCalculator{
   final List<Widget> itemList;
   final int columnCount;
 
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-  IntrinsicHeightCalculator({
+  IntrinsicSizeCalculator({
     required this.itemList,
     required this.columnCount,
   });

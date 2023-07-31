@@ -1,4 +1,4 @@
-import 'package:efficient_intrinsic_gridview/efficient_intrinsic_grid_view.dart';
+import 'package:efficient_intrinsic_gridview/efficient_intrinsic_gridview.dart';
 import 'package:flutter/material.dart';
 
 
