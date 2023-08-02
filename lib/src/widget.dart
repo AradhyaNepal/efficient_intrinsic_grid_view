@@ -7,13 +7,14 @@ import 'enum.dart';
 class EfficientIntrinsicGridView extends StatelessWidget {
   final IntrinsicController controller;
 
-  //Todo: Add comment
-  final RenderPrevention renderPrevention;
+  ///Wraps widget with extra SingleChildScrollView to prevent overflow
+  ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact
+  final bool preventOverflow;
 
   const EfficientIntrinsicGridView({
     super.key,
     required this.controller,
-    this.renderPrevention = RenderPrevention.none,
+    this.preventOverflow=false,
   });
 
   @override
@@ -21,7 +22,6 @@ class EfficientIntrinsicGridView extends StatelessWidget {
     if (controller.widgetList.isEmpty) return const SizedBox();
     return ControllerInheritedWidget(
       controller: controller,
-      renderPrevention: renderPrevention,
       child: ValueListenableBuilder(
           valueListenable: controller,
           builder: (context, isLoading, child) {
@@ -42,23 +42,14 @@ class EfficientIntrinsicGridView extends StatelessWidget {
                       gridDelegate: controller.intrinsicRowGridDelegate,
                       itemBuilder: (context, index) {
                         final child = controller.widgetList[index];
-                        return switch (renderPrevention) {
-                          //Todo: Might User ListView instead
-                          RenderPrevention.hListview => SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: child,
-                            ),
-                          RenderPrevention.vListview => SingleChildScrollView(
+                        if(preventOverflow){
+                          return SingleChildScrollView(
+                            scrollDirection: controller.axis,
                             child: child,
-                            ),
-                        RenderPrevention.twoDListview=>SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SingleChildScrollView(
-                            child: child,
-                          ),
-                        ),
-                          _ => child,
-                        };
+                          );
+                        }else{
+                          return child;
+                        }
                       },
                       itemCount: controller.widgetList.length,
                     ),

@@ -117,7 +117,7 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
     if(fromWhichRowToStart<0){
       fromWhichRowToStart=0;
     }
-    return fromWhichRowToStart*crossAxisCount-1; //Todo: Plus one is hardcoded, might cause problem, needs testing and understanding
+    return fromWhichRowToStart*crossAxisCount; //Todo: Plus one is hardcoded, might cause problem, needs testing and understanding
   }
 
 
@@ -136,7 +136,7 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
       fromWhichRowToEnd--;
     }
     //Todo: Plus two is hardcoded, might cause problem, needs testing and understanding
-   fromWhichRowToEnd+=2;//Without +2 last one row item not showing
+   fromWhichRowToEnd+=1;//Without +2 last one row item not showing
     int endItems=fromWhichRowToEnd*crossAxisCount;
     if(endItems>totalItems){
       endItems=totalItems;

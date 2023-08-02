@@ -6,11 +6,10 @@ class ControllerInheritedWidget extends InheritedWidget {
   const ControllerInheritedWidget({
     super.key,
     required this.controller,
-    required this.renderPrevention,
     required super.child,
   });
 
-  final RenderPrevention renderPrevention;
+
   final IntrinsicController controller;
 
   static ControllerInheritedWidget? maybeOf(BuildContext context) {
@@ -27,5 +26,5 @@ class ControllerInheritedWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ControllerInheritedWidget oldWidget) =>
-      controller != oldWidget.controller || oldWidget.renderPrevention!=renderPrevention;
+      controller != oldWidget.controller;
 }

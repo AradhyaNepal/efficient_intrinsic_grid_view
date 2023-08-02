@@ -49,7 +49,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
         ],
       ),
       body: EfficientIntrinsicGridView(
-        renderPrevention: RenderPrevention.vListview,
+        preventOverflow: true,
         controller:controller ,
       ),
     );
@@ -61,7 +61,6 @@ class _InnerItem extends StatefulWidget {
     super.key,
     required this.itemCount,
   required this.index,
-    required
   });
 
   final int itemCount;
