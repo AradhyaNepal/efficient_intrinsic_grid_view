@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../efficient_intrinsic_gridview.dart';
+import '../../efficient_intrinsic_gridview.dart';
 
 class IntrinsicController extends ValueNotifier<bool> {
   final Axis axis;
@@ -20,6 +20,8 @@ class IntrinsicController extends ValueNotifier<bool> {
     });
 
   }
+
+  double get getSize=>_rowsIntrinsicHeight.fold(0, (previousValue, element) => previousValue+element);
 
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 

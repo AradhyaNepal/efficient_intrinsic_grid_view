@@ -1,8 +1,10 @@
-import 'package:efficient_intrinsic_gridview/src/controller_inherited_widget.dart';
+import 'package:efficient_intrinsic_gridview/src/normal/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
 
-part 'grid_using_column_row.dart';
+part 'shrink_wrap/grid_using_column_row.dart';
+part 'normal/normal_intrinsic_gridview.dart';
+part 'builder/builder_intrinsic_gridview.dart';
 
 ///This gridview uses GridView.builder to be efficient, so it will only render widget which user sees, plus some other for buffer.
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
@@ -13,14 +15,14 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
     required IntrinsicController controller,
     bool preventOverflow = false,
   }) =>
-      _NormalWidget(controller: controller);
+      _NormalIntrinsicGridView(controller: controller,preventOverflow: preventOverflow,);
 
   factory EfficientIntrinsicGridView.builder({
     Key? key,
     required IntrinsicController controller,
     bool preventOverflow = false,
   }) =>
-      _BuilderWidget(
+      _BuilderIntrinsicGridView(
         key: key,
       );
 
@@ -43,74 +45,5 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
       );
 }
 
-class _NormalWidget extends EfficientIntrinsicGridView {
-  final IntrinsicController controller;
 
-  ///Wraps widget with extra SingleChildScrollView to prevent overflow
-  ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact
-  final bool preventOverflow;
 
-  const _NormalWidget({
-    Key? key,
-    required this.controller,
-    this.preventOverflow = false,
-  }) : super._init(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (controller.widgetList.isEmpty) return const SizedBox();
-    return ControllerInheritedWidget(
-      controller: controller,
-      child: ValueListenableBuilder(
-          valueListenable: controller,
-          builder: (context, isLoading, child) {
-            return Column(
-              children: [
-                if (isLoading)
-                  Builder(
-                    builder: (context) {
-                      Future.delayed(Duration.zero, () {
-                        controller.calculateMaxHeight();
-                      });
-                      return controller.initRendering();
-                    },
-                  ),
-                if (controller.isInitialized)
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: controller.intrinsicRowGridDelegate,
-                      itemBuilder: (context, index) {
-                        final child = controller.widgetList[index];
-                        if (preventOverflow) {
-                          return SingleChildScrollView(
-                            scrollDirection: controller.axis,
-                            child: child,
-                          );
-                        } else {
-                          return child;
-                        }
-                      },
-                      itemCount: controller.widgetList.length,
-                    ),
-                  )
-                else
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  )
-              ],
-            );
-          }),
-    );
-  }
-}
-
-class _BuilderWidget extends EfficientIntrinsicGridView {
-  const _BuilderWidget({
-    Key? key,
-  }) : super._init(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
