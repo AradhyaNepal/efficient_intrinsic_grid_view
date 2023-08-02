@@ -1,13 +1,16 @@
 import 'package:efficient_intrinsic_gridview/efficient_intrinsic_gridview.dart';
+import 'package:efficient_intrinsic_gridview/src/enum.dart';
 import 'package:flutter/material.dart';
 
 class ControllerInheritedWidget extends InheritedWidget {
   const ControllerInheritedWidget({
     super.key,
     required this.controller,
+    required this.renderPrevention,
     required super.child,
   });
 
+  final RenderPrevention renderPrevention;
   final IntrinsicController controller;
 
   static ControllerInheritedWidget? maybeOf(BuildContext context) {
@@ -24,5 +27,5 @@ class ControllerInheritedWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ControllerInheritedWidget oldWidget) =>
-      controller != oldWidget.controller;
+      controller != oldWidget.controller || oldWidget.renderPrevention!=renderPrevention;
 }

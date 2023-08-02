@@ -1,5 +1,6 @@
 import 'package:efficient_intrinsic_gridview/efficient_intrinsic_gridview.dart';
 import 'package:efficient_intrinsic_gridview/src/controller_inherited_widget.dart';
+import 'package:efficient_intrinsic_gridview/src/enum.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -48,7 +49,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
         ],
       ),
       body: EfficientIntrinsicGridView(
-        preventOverflow: true,
+        renderPrevention: RenderPrevention.vListview,
         controller:controller ,
       ),
     );
