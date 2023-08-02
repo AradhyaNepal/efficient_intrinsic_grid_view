@@ -2,6 +2,8 @@ import 'package:efficient_intrinsic_gridview/src/controller_inherited_widget.dar
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
 
+part 'grid_using_column_row.dart';
+
 ///This gridview uses GridView.builder to be efficient, so it will only render widget which user sees, plus some other for buffer.
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
   const EfficientIntrinsicGridView._init({super.key});
@@ -9,25 +11,37 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
   factory EfficientIntrinsicGridView({
     Key? key,
     required IntrinsicController controller,
-    bool preventOverflow=false,
-  })=>_NormalWidget(controller: controller);
-
+    bool preventOverflow = false,
+  }) =>
+      _NormalWidget(controller: controller);
 
   factory EfficientIntrinsicGridView.builder({
     Key? key,
     required IntrinsicController controller,
-    bool preventOverflow=false,
-  })=>_BuilderWidget(key: key,);
+    bool preventOverflow = false,
+  }) =>
+      _BuilderWidget(
+        key: key,
+      );
 
+  //Todo: Comment and test
   factory EfficientIntrinsicGridView.shrinkWrap({
     Key? key,
-    required IntrinsicController controller,
-    bool preventOverflow=false,
-  })=>_ShrinkWrapWidget(key: key,);
-
-
+    required Widget Function(BuildContext, int) itemBuilder,
+    required int itemCount,
+    int columnCounts = 2,
+    double? leftPadding,
+    bool alignColumnWise = true, //Todo: Use Axis instead
+  }) =>
+      _GridUsingColumnRow(
+        key: key,
+        itemBuilder: itemBuilder,
+        itemCount: itemCount,
+        columnCounts: columnCounts,
+        leftPadding: leftPadding,
+        alignColumnWise: alignColumnWise,
+      );
 }
-
 
 class _NormalWidget extends EfficientIntrinsicGridView {
   final IntrinsicController controller;
@@ -36,7 +50,11 @@ class _NormalWidget extends EfficientIntrinsicGridView {
   ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact
   final bool preventOverflow;
 
-  const _NormalWidget({Key? key,required this.controller,this.preventOverflow=false,}):super._init(key: key);
+  const _NormalWidget({
+    Key? key,
+    required this.controller,
+    this.preventOverflow = false,
+  }) : super._init(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +81,12 @@ class _NormalWidget extends EfficientIntrinsicGridView {
                       gridDelegate: controller.intrinsicRowGridDelegate,
                       itemBuilder: (context, index) {
                         final child = controller.widgetList[index];
-                        if(preventOverflow){
+                        if (preventOverflow) {
                           return SingleChildScrollView(
                             scrollDirection: controller.axis,
                             child: child,
                           );
-                        }else{
+                        } else {
                           return child;
                         }
                       },
@@ -87,18 +105,12 @@ class _NormalWidget extends EfficientIntrinsicGridView {
 }
 
 class _BuilderWidget extends EfficientIntrinsicGridView {
-  const _BuilderWidget({Key? key,}):super._init(key: key);
+  const _BuilderWidget({
+    Key? key,
+  }) : super._init(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const Placeholder();
   }
 }
-
-class _ShrinkWrapWidget extends EfficientIntrinsicGridView {
-  const _ShrinkWrapWidget({Key? key,}):super._init(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
-
