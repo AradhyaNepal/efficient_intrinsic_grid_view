@@ -34,6 +34,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                 if (controller.isInitialized)
                   Expanded(
                     child: GridView.builder(
+                      scrollDirection: controller.axis,
                       gridDelegate: controller.intrinsicRowGridDelegate,
                       itemBuilder: (context, index) {
                         final child = controller.widgetList[index];
