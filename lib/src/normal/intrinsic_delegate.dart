@@ -100,6 +100,7 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   /// And Second item is max height of second height and so on..
   final List<double> rowIntrinsicHeights;
   final int totalItems;
+  final int extraBuffer=1;
 
   ///When GridView scroll we do not need to render all items,
   /// because user only see limited screen at a particular time's scroll offset.
@@ -114,10 +115,11 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
       height+=currentRowHeight;
       fromWhichRowToStart++;
     }
+    fromWhichRowToStart-=extraBuffer;
     if(fromWhichRowToStart<0){
       fromWhichRowToStart=0;
     }
-    return fromWhichRowToStart*crossAxisCount; //Todo: Plus one is hardcoded, might cause problem, needs testing and understanding
+    return fromWhichRowToStart*crossAxisCount;
   }
 
 
@@ -135,8 +137,8 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
       height-=currentRowHeight;
       fromWhichRowToEnd--;
     }
-    //Todo: Plus two is hardcoded, might cause problem, needs testing and understanding
-   fromWhichRowToEnd+=1;//Without +2 last one row item not showing
+   fromWhichRowToEnd+=1;//No Idea why
+   fromWhichRowToEnd+=extraBuffer;
     int endItems=fromWhichRowToEnd*crossAxisCount;
     if(endItems>totalItems){
       endItems=totalItems;
