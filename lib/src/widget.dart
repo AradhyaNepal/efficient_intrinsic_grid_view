@@ -1,21 +1,42 @@
 import 'package:efficient_intrinsic_gridview/src/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
-import 'enum.dart';
 
 ///This gridview uses GridView.builder to be efficient, so it will only render widget which user sees, plus some other for buffer.
-class EfficientIntrinsicGridView extends StatelessWidget {
+abstract class EfficientIntrinsicGridView extends StatelessWidget {
+  const EfficientIntrinsicGridView._init({super.key});
+
+  factory EfficientIntrinsicGridView({
+    Key? key,
+    required IntrinsicController controller,
+    bool preventOverflow=false,
+  })=>_NormalWidget(controller: controller);
+
+
+  factory EfficientIntrinsicGridView.builder({
+    Key? key,
+    required IntrinsicController controller,
+    bool preventOverflow=false,
+  })=>_BuilderWidget(key: key,);
+
+  factory EfficientIntrinsicGridView.shrinkWrap({
+    Key? key,
+    required IntrinsicController controller,
+    bool preventOverflow=false,
+  })=>_ShrinkWrapWidget(key: key,);
+
+
+}
+
+
+class _NormalWidget extends EfficientIntrinsicGridView {
   final IntrinsicController controller;
 
   ///Wraps widget with extra SingleChildScrollView to prevent overflow
   ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact
   final bool preventOverflow;
 
-  const EfficientIntrinsicGridView({
-    super.key,
-    required this.controller,
-    this.preventOverflow=false,
-  });
+  const _NormalWidget({Key? key,required this.controller,this.preventOverflow=false,}):super._init(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,3 +85,20 @@ class EfficientIntrinsicGridView extends StatelessWidget {
     );
   }
 }
+
+class _BuilderWidget extends EfficientIntrinsicGridView {
+  const _BuilderWidget({Key? key,}):super._init(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
+class _ShrinkWrapWidget extends EfficientIntrinsicGridView {
+  const _ShrinkWrapWidget({Key? key,}):super._init(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
