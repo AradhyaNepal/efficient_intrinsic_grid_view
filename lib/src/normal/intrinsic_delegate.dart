@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 //Todo: Make it for horizontal scrolling too
 ///Only use it for Vertical Scrolling.
 ///
-///We can provide different height of each row using this Delegate
+///We can provide different height of each cross Axis using this Delegate
 class IntrinsicDelegate extends SliverGridDelegate {
   const IntrinsicDelegate({
     required this.crossAxisCount,
@@ -51,7 +51,7 @@ class IntrinsicDelegate extends SliverGridDelegate {
       constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1),
     );
     final double childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-    return IntrinsicRowTileLayout(
+    return IntrinsicCrossAxisTileLayout(
       crossAxisCount: crossAxisCount,
       crossAxisIntrinsicSize: crossAxisIntrinsicSize,
       crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
@@ -75,8 +75,8 @@ class IntrinsicDelegate extends SliverGridDelegate {
 
 
 
-class IntrinsicRowTileLayout extends SliverGridLayout {
-  const IntrinsicRowTileLayout({
+class IntrinsicCrossAxisTileLayout extends SliverGridLayout {
+  const IntrinsicCrossAxisTileLayout({
     required this.crossAxisCount,
     required this.crossAxisStride,
     required this.childCrossAxisExtent,
@@ -108,18 +108,18 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   /// This method is about, from which index start rendering, above this index item are not rendered.
   @override
   int getMinChildIndexForScrollOffset(double scrollOffset) {
-    int fromWhichRowToStart=0;
+    int fromWhichCrossAxisToStart=0;
     double fromThisMainAxis=0;
     while(fromThisMainAxis<scrollOffset){
-      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichRowToStart]+mainAxisSpacing;
+      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichCrossAxisToStart]+mainAxisSpacing;
       fromThisMainAxis+=currentMainAxisSize;
-      fromWhichRowToStart++;
+      fromWhichCrossAxisToStart++;
     }
-    fromWhichRowToStart-=extraBuffer;
-    if(fromWhichRowToStart<0){
-      fromWhichRowToStart=0;
+    fromWhichCrossAxisToStart-=extraBuffer;
+    if(fromWhichCrossAxisToStart<0){
+      fromWhichCrossAxisToStart=0;
     }
-    return fromWhichRowToStart*crossAxisCount;
+    return fromWhichCrossAxisToStart*crossAxisCount;
   }
 
 
@@ -130,16 +130,16 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   /// This method is about, from which index end rendering, below this index item are not rendered.
   @override
   int getMaxChildIndexForScrollOffset(double scrollOffset) {
-    int fromWhichRowToEnd=crossAxisIntrinsicSize.length-1;
+    int fromWhichCrossAxisToEnd=crossAxisIntrinsicSize.length-1;
     double fromThisMainAxis=_totalMainAxisItemSize;
     while(fromThisMainAxis>scrollOffset){
-      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichRowToEnd]+mainAxisSpacing;
+      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichCrossAxisToEnd]+mainAxisSpacing;
       fromThisMainAxis-=currentMainAxisSize;
-      fromWhichRowToEnd--;
+      fromWhichCrossAxisToEnd--;
     }
-   fromWhichRowToEnd+=1;//No Idea why
-   fromWhichRowToEnd+=extraBuffer;
-    int endItems=fromWhichRowToEnd*crossAxisCount;
+   fromWhichCrossAxisToEnd+=1;//No Idea why
+   fromWhichCrossAxisToEnd+=extraBuffer;
+    int endItems=fromWhichCrossAxisToEnd*crossAxisCount;
     if(endItems>totalItems){
       endItems=totalItems;
     }
@@ -154,12 +154,12 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   //See official flutter docs
   @override
   SliverGridGeometry getGeometryForChildIndex(int index) {
-    int rowIndex=index~/crossAxisCount;
-    if(rowIndex<=crossAxisIntrinsicSize.length-1){
+    int crossAxisIndex=index~/crossAxisCount;
+    if(crossAxisIndex<=crossAxisIntrinsicSize.length-1){
       final double crossAxisStart = (index % crossAxisCount) * crossAxisStride;
-      double specificCrossAxisIntrinsicSize=crossAxisIntrinsicSize[rowIndex];
+      double specificCrossAxisIntrinsicSize=crossAxisIntrinsicSize[crossAxisIndex];
       double scrollOffset=0;
-      for(int i=0;i<rowIndex;i++){
+      for(int i=0;i<crossAxisIndex;i++){
         scrollOffset+=crossAxisIntrinsicSize[i]+mainAxisSpacing;
       }
       return SliverGridGeometry(
