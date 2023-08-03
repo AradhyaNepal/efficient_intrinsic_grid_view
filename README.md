@@ -32,8 +32,8 @@ I have named it shrinkWrap, because most of new developer learns about shrinkWra
 when flutter is throwing has infinite size error on Scrolling item.
 This widget prevents that error.
 
-But lets say there are 1000 items on a GridView, IntrinsicHeight and IntrinsicWidth are already an expensive widget,
-and when you are using EfficientIntrinsicGridView.shrinkWrap you are rendering all the expensive 1000 widgets at once.
+But lets say there are 100 items on a GridView, IntrinsicHeight and IntrinsicWidth are already an expensive widget,
+and when you are using EfficientIntrinsicGridView.shrinkWrap you are rendering all the expensive 100 widgets at once.
 Huge memory will be used by the app, sometimes your app can even crash
 if your memory consumption is higher than RAM memory available.
 That's why don't use EfficientIntrinsicGridView.shrinkWrap, its inefficient.
@@ -49,10 +49,10 @@ EfficientIntrinsicGridView and EfficientIntrinsicGridView.builder
 
 Both have there own efficient algorithm to calculate intrinsic mainAxisExtent of crossAxis items,
 without using expensive IntrinsicHeight and IntrinsicWidth widget.
-Unlike EfficientIntrinsicGridView.shrinkWrap, it does not renders all 1000 elements at once.
+Unlike EfficientIntrinsicGridView.shrinkWrap, it does not renders all 100 elements at once.
 After calculating the size, custom SliverGridDelegate of this EfficientIntrinsicGridView
 renders only the element which is visible to the user, plus one extra buffer.
-Whether the items available are 100 or 1000, the memory consumption
+Whether the items available are 10 or 100, the memory consumption
 while rendering those elements will remain the same.
 
 And that's why its efficient!

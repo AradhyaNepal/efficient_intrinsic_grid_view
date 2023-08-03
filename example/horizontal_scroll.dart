@@ -16,22 +16,6 @@ class _GridviewSolutionState extends State<GridviewSolution> {
   final controller=IntrinsicController(
     axis: Axis.horizontal,
     columnCount: 3,
-    widgetList: [
-      for (int i = 0; i < 20; i++)
-        Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.blue,
-                width: 5,
-              )),
-          child: Row(
-            children: [
-              for (int j = 0; j < i + 1; j++)
-                _InnerItem(itemCount: j,index: i,)
-            ],
-          ),
-        ),
-    ],
   );
   @override
   void dispose() {
@@ -53,7 +37,23 @@ class _GridviewSolutionState extends State<GridviewSolution> {
       ),
       body: EfficientIntrinsicGridView(
         preventOverflow: false,
-        controller:controller ,
+        intrinsicController:controller ,
+        children: [
+          for (int i = 0; i < 20; i++)
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.green,
+                    width: 5,
+                  )),
+              child: Row(
+                children: [
+                  for (int j = 0; j < i + 1; j++)
+                    _InnerItem(itemCount: j,index: i,)
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -77,6 +77,8 @@ class _InnerItemState extends State<_InnerItem> {
   double width=20;
   @override
   Widget build(BuildContext context) {
+
+
     return GestureDetector(
       onTap: (){
         width+=width;
@@ -85,7 +87,7 @@ class _InnerItemState extends State<_InnerItem> {
         });
       },
       child: Container(
-        color: Colors.red,
+        color: Colors.blue,
         margin: const EdgeInsets.only(bottom: 2),
         width: width,
         child: Text(

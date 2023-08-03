@@ -1,29 +1,40 @@
-import 'package:flutter/material.dart';
-
-import '../../efficient_intrinsic_gridview.dart';
-
+part of '../widget.dart';
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
+  var _beenInitializedOnce=false;//Make completer
   final Axis axis;
   final int columnCount;
-  List<Widget> _widgetList;
+  List<Widget> _widgetList = [];
+
   ///Returns unmodifiable list, so you cannot update it.
   ///If you want to update it, you have to use the setter method
-  List<Widget> get widgetList=>List.unmodifiable(_widgetList);
-  ///On passing new value, the [refreshSpecific] method is called again to calculate new value.
-  set widgetList(List<Widget> newValue){
-    _intrinsicHeightCalculator.itemList=newValue;
-    super.value=true;
+  List<Widget> get widgetList => List.unmodifiable(_widgetList);
+
+  ///On Value updated, widgets get rebuild,
+  ///and intrinsic height are recalculated
+  set widgetList(List<Widget> newValue) {
+    _intrinsicHeightCalculator.itemList = newValue;
+    super.value = true;
     super.addListener(() {
-      if(!super.value){
-        _widgetList=newValue;
+      if (!super.value) {
+        _widgetList = newValue;
       }
     });
+  }
 
+  //Todo: Make it work, and logic verify
+  void _onGridviewConstructed({
+    required bool preventRebuild,
+    required List<Widget> widgets,
+  }) {
+    if(!(_beenInitializedOnce && preventRebuild)){
+      widgetList=widgets;
+    }
   }
 
   //Todo: Currently excluding gap, why??
-  double get getSize=>_rowsIntrinsicHeight.fold(0, (previousValue, element) => previousValue+element);
+  double get getSize => _rowsIntrinsicHeight.fold(
+      0, (previousValue, element) => previousValue + element);
 
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 
@@ -36,20 +47,20 @@ class IntrinsicController extends ValueNotifier<bool> {
         crossAxisSizeRefresh: _refreshCount,
       );
   List<double> _rowsIntrinsicHeight = [];
+
   bool get isInitialized => _rowsIntrinsicHeight.isNotEmpty;
-
-
 
   Widget initRendering() {
     if (!super.value) return const SizedBox();
+    print("Was here");
+
     return _intrinsicHeightCalculator.initByRendering();
   }
 
   IntrinsicController({
     required this.columnCount,
-    required List<Widget> widgetList,
-    this.axis=Axis.vertical,
-  }) :_widgetList=widgetList, super(true) {
+    this.axis = Axis.vertical,
+  }) : super(true) {
     _intrinsicHeightCalculator = IntrinsicSizeCalculator(
       itemList: widgetList,
       columnCount: columnCount,
@@ -72,5 +83,6 @@ class IntrinsicController extends ValueNotifier<bool> {
         await _intrinsicHeightCalculator.getOverallMaxHeight();
     _refreshCount++;
     super.value = false;
+    _beenInitializedOnce=true;
   }
 }

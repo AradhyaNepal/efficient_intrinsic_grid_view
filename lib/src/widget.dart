@@ -1,12 +1,15 @@
 import 'package:efficient_intrinsic_gridview/src/normal/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
+import 'comman/grid_input.dart';
 
 part 'shrink_wrap/grid_using_column_row.dart';
 
 part 'normal/normal_intrinsic_gridview.dart';
 
 part 'builder/builder_intrinsic_gridview.dart';
+
+part 'normal/intrinsic_controller.dart';
 
 /// A GridView which allowed every crossAxis to have its own intrinsic size, i.e.
 /// its own intrinsic height for vertical scrolling or its own intrinsic width for horizontal scrolling.
@@ -36,8 +39,9 @@ part 'builder/builder_intrinsic_gridview.dart';
 /// when flutter is throwing has infinite size error on Scrolling item.
 /// This widget prevents that error.
 ///
-/// But lets say there are 1000 items on a [GridView], [IntrinsicHeight] and [IntrinsicWidth] are already an expensive widget,
-/// and when you are using [EfficientIntrinsicGridView.shrinkWrap] you are rendering all the expensive 1000 widgets at once.
+/// But lets say there are 100 items on a [GridView], [IntrinsicHeight] and [IntrinsicWidth] are already an expensive widget,
+/// and when you are using [EfficientIntrinsicGridView.shrinkWrap] you are rendering all the expensive 100 widgets at once.
+/// Even those widgets that user cannot see are being rendered.
 /// Huge memory will be used by the app, sometimes your app can even crash
 /// if your memory consumption is higher than RAM memory available.
 /// That's why don't use [EfficientIntrinsicGridView.shrinkWrap], its inefficient.
@@ -53,10 +57,10 @@ part 'builder/builder_intrinsic_gridview.dart';
 ///
 /// Both have there own efficient algorithm to calculate intrinsic mainAxisExtent of crossAxis items,
 /// without using expensive [IntrinsicHeight] and [IntrinsicWidth] widget.
-/// Unlike [EfficientIntrinsicGridView.shrinkWrap], it does not renders all 1000 elements at once.
+/// Unlike [EfficientIntrinsicGridView.shrinkWrap], it does not renders all 100 elements at once.
 /// After calculating the size, custom [SliverGridDelegate] of this [EfficientIntrinsicGridView]
 /// renders only the element which is visible to the user, plus one extra buffer.
-/// Whether the items available are 100 or 1000, the memory consumption
+/// Whether the items available are 10 or 100, the memory consumption
 /// while rendering those elements will remain the same.
 ///
 /// And that's why its efficient!
@@ -66,24 +70,38 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
 
   factory EfficientIntrinsicGridView({
     Key? key,
-    required IntrinsicController controller,
+    required List<Widget> children,
+    required IntrinsicController intrinsicController,
+    bool preventRebuild=true,
+    GridViewInput? gridViewInput,
     bool preventOverflow = false,
-  }) =>
-      _NormalIntrinsicGridView(
-        controller: controller,
-        preventOverflow: preventOverflow,
-      );
+  }) {
+    intrinsicController._onGridviewConstructed(
+      preventRebuild: preventRebuild,
+      widgets: children,
+    );
+    return _NormalIntrinsicGridView(
+      controller: intrinsicController,
+      preventOverflow: preventOverflow,
+      gridViewInput: gridViewInput,
+    );
+  }
+
+  //Todo:Padding to zero
+  //Todo: Cache extend available
 
   factory EfficientIntrinsicGridView.builder({
     Key? key,
     required IntrinsicController controller,
+    GridViewInput? gridViewInput,
     bool preventOverflow = false,
   }) =>
       _BuilderIntrinsicGridView(
         key: key,
+        gridViewInput: gridViewInput,
       );
 
-  //Todo: Comment and test
+  //Todo: Document and test
   factory EfficientIntrinsicGridView.shrinkWrap({
     Key? key,
     required Widget Function(BuildContext, int) itemBuilder,
