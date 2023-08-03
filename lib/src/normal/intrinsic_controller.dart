@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../efficient_intrinsic_gridview.dart';
 
+//Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
   final Axis axis;
   final int columnCount;
@@ -21,6 +22,7 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   }
 
+  //Todo: Currently excluding gap, why??
   double get getSize=>_rowsIntrinsicHeight.fold(0, (previousValue, element) => previousValue+element);
 
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Todo: Refactor variable to denote both cross axis and main axis scrolling
 ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
 class IntrinsicSizeCalculator{
   List<Widget> itemList;
@@ -36,7 +37,8 @@ class IntrinsicSizeCalculator{
     //Todo: Is this efficient, if no than make it efficient.
     //Todo: Do performance testing
     widget= Offstage(
-      child: Column(
+      child: Flex(
+        direction: axis,
         children:[
           for(int i=0;i<itemList.length;i++)
             _renderList[i],
@@ -71,6 +73,7 @@ class IntrinsicSizeCalculator{
           }
         }
       }
+
       rowMaxHeightList.add(rowMaxHeight);
     }
     return rowMaxHeightList;
