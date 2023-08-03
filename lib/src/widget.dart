@@ -26,7 +26,7 @@ part 'builder/builder_intrinsic_gridview.dart';
 /// In this package we have multiple mainAxisExtent as per every crossAxis's elements max size.
 ///
 /// ### But why there is Efficient word in my package??
-/// Because it is efficient.
+/// Because it's efficient.
 ///
 /// This Intrinsic name was inspired from [IntrinsicHeight] and [IntrinsicWidth] widget provided by Flutter framework.
 /// To demonstrate what inefficiency is, I have also created [EfficientIntrinsicGridView.shrinkWrap],
@@ -54,7 +54,7 @@ part 'builder/builder_intrinsic_gridview.dart';
 /// Both have there own efficient algorithm to calculate intrinsic mainAxisExtent of crossAxis items,
 /// without using expensive [IntrinsicHeight] and [IntrinsicWidth] widget.
 /// Unlike [EfficientIntrinsicGridView.shrinkWrap], it does not renders all 1000 elements at once.
-/// After calculating the size, custom [SliverGridDelegate]
+/// After calculating the size, custom [SliverGridDelegate] of this [EfficientIntrinsicGridView]
 /// renders only the element which is visible to the user, plus one extra buffer.
 /// Whether the items available are 100 or 1000, the memory consumption
 /// while rendering those elements will remain the same.
