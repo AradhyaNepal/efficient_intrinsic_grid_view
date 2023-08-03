@@ -1,8 +1,13 @@
 name: efficient_intrinsic_gridview
-description: This widget calculate intrinsic height of widget in an efficient manner (i.e By using Gridview.builder instead of ScrollView). Only only the item that user can see will be rendered with some buffer, which make sure app does not crash on very long list of data
-repository: https://github.com/AradhyaNepal/efficient_intrinsic_grid_view/tree/master
-issue_tracker: https://github.com/AradhyaNepal/efficient_intrinsic_grid_view/issues
-version: 0.0.1-unstable-release+1
+description:
+  This widget calculates intrinsic max size (or mainAxisExtend) of every crossAxis item on a GridView. 
+  So you are not stuck with just one mainAxisExtend.
+  And it does that very efficiently, only rendering the element that is being displayed to the user,
+  without using expensive IntrinsicHeight or IntrinsicWidth widget
+
+repository: https://github.com/AradhyaNepal/efficient_intrinsic_gridview
+issue_tracker: https://github.com/AradhyaNepal/efficient_intrinsic_gridview/issues
+version: 0.0.2-unstable-release
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
