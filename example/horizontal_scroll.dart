@@ -34,6 +34,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
       ),
       body: EfficientIntrinsicGridView(
         scrollDirection: Axis.horizontal,
+        preventRebuild: false,
         crossAxisCount: 2,
         intrinsicController:controller ,
         children: [
