@@ -1,9 +1,11 @@
 part of '../widget.dart';
+//Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
+//What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
   var _beenInitializedOnce=false;//Make completer
-  final Axis axis;
-  final int columnCount;
+  Axis _axis=Axis.vertical;
+  int _crossAxisCount=0;//0 means not set yet
   List<Widget> _widgetList = [];
 
   ///Returns unmodifiable list, so you cannot update it.
@@ -13,6 +15,8 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
+    _intrinsicHeightCalculator.axis=_axis;
+    _intrinsicHeightCalculator.crossAxisCount=_crossAxisCount;
     _intrinsicHeightCalculator.itemList = newValue;
     super.value = true;
     super.addListener(() {
@@ -26,9 +30,14 @@ class IntrinsicController extends ValueNotifier<bool> {
   void _onGridviewConstructed({
     required bool preventRebuild,
     required List<Widget> widgets,
+    required Axis axis,
+    required int crossAxisCount,
   }) {
     if(!(_beenInitializedOnce && preventRebuild)){
-      widgetList=widgets;
+      _axis=axis;
+      _crossAxisCount=crossAxisCount;
+      //Below must be at last
+      widgetList=[...widgets];//Todo: Should i do it??
     }
   }
 
@@ -41,7 +50,7 @@ class IntrinsicController extends ValueNotifier<bool> {
   int _refreshCount = 0;
 
   IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
-        crossAxisCount: 3,
+        crossAxisCount: _crossAxisCount,
         crossAxisIntrinsicSize: _rowsIntrinsicHeight,
         totalItems: widgetList.length,
         crossAxisSizeRefresh: _refreshCount,
@@ -57,14 +66,11 @@ class IntrinsicController extends ValueNotifier<bool> {
     return _intrinsicHeightCalculator.initByRendering();
   }
 
-  IntrinsicController({
-    required this.columnCount,
-    this.axis = Axis.vertical,
-  }) : super(true) {
+  IntrinsicController() : super(true) {
     _intrinsicHeightCalculator = IntrinsicSizeCalculator(
       itemList: widgetList,
-      columnCount: columnCount,
-      axis: axis,
+      crossAxisCount: _crossAxisCount,
+      axis: _axis,
     );
   }
 
@@ -75,6 +81,7 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///
   /// ->UI Uses Old Cache Max Height List while New Max Height is being calculated <-
   Future<void> calculateMaxHeight() async {
+    if(_crossAxisCount<=0)return;
     if (!super.value) return;
     //Delay to calculate Height in next frame after initRendering is done,
     // else max height is calculated using old data.

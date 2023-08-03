@@ -13,10 +13,7 @@ class GridviewSolution extends StatefulWidget {
 }
 
 class _GridviewSolutionState extends State<GridviewSolution> {
-  final controller=IntrinsicController(
-    axis: Axis.horizontal,
-    columnCount: 3,
-  );
+  final controller=IntrinsicController();
   @override
   void dispose() {
     controller.dispose();
@@ -36,14 +33,15 @@ class _GridviewSolutionState extends State<GridviewSolution> {
         ],
       ),
       body: EfficientIntrinsicGridView(
-        preventOverflow: false,
+        scrollDirection: Axis.horizontal,
+        crossAxisCount: 2,
         intrinsicController:controller ,
         children: [
           for (int i = 0; i < 20; i++)
             Container(
               decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.green,
+                    color: Colors.yellow,
                     width: 5,
                   )),
               child: Row(

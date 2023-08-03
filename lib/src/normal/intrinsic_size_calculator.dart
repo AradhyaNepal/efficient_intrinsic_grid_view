@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
 class IntrinsicSizeCalculator{
   List<Widget> itemList;
-  final int columnCount;
-  final Axis axis;
+  int crossAxisCount;
+  Axis axis;
 
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
   IntrinsicSizeCalculator({
     required this.itemList,
-    required this.columnCount,
+    required this.crossAxisCount,
     required this.axis,
   });
 
@@ -58,9 +58,9 @@ class IntrinsicSizeCalculator{
   Future<List<double>> getOverallMaxHeight() async{
     await Future.delayed(Duration.zero); //To make sure initRendering had rendered the widgets, and only after rendering below code is run
     List<double> rowMaxHeightList=[];
-    for(int row=0;row<_keysList.length;row+=columnCount){
+    for(int row=0;row<_keysList.length;row+=crossAxisCount){
       double rowMaxHeight=0;
-      for(int column=0;column<columnCount;column++){
+      for(int column=0;column<crossAxisCount;column++){
         int overallIndex=row+column;
         if(overallIndex>_keysList.length-1){
           rowMaxHeightList.add(rowMaxHeight);

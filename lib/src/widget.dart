@@ -68,17 +68,23 @@ part 'normal/intrinsic_controller.dart';
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
   const EfficientIntrinsicGridView._init({super.key});
 
+  //Todo: Document
   factory EfficientIntrinsicGridView({
     Key? key,
     required List<Widget> children,
     required IntrinsicController intrinsicController,
-    bool preventRebuild=true,
+    bool preventRebuild=true, //Todo: For few milliseconds, on HotRestart we are getting RenderFlex Overflow
     GridViewInput? gridViewInput,
-    bool preventOverflow = false,
-  }) {
+    bool preventOverflow = false,//Todo: This needs to scroll gridview to work. Why?? should i solve it?? or just put on docs??
+    required int crossAxisCount,
+    Axis scrollDirection=Axis.vertical,
+  }){
+    assert(crossAxisCount>0,"Cross Axis count must be greater than one");//Todo: Better Assets
     intrinsicController._onGridviewConstructed(
       preventRebuild: preventRebuild,
       widgets: children,
+      axis: scrollDirection,
+      crossAxisCount: crossAxisCount,
     );
     return _NormalIntrinsicGridView(
       controller: intrinsicController,

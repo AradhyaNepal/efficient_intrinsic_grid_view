@@ -37,7 +37,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                 if (controller.isInitialized)
                   Expanded(
                     child: GridView.builder(
-                      scrollDirection: controller.axis,
+                      scrollDirection: controller._axis,
                       gridDelegate: controller.intrinsicRowGridDelegate,
                       reverse: gridViewInput.reverse,
                       controller: gridViewInput.controller,
@@ -61,7 +61,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                         final child = controller.widgetList[index];
                         if (preventOverflow) {
                           return SingleChildScrollView(
-                            scrollDirection: controller.axis,
+                            scrollDirection: controller._axis,
                             child: child,
                           );
                         } else {
