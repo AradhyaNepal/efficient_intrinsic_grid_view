@@ -40,6 +40,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                         final child = controller.widgetList[index];
                         if (preventOverflow) {
                           return SingleChildScrollView(
+                            scrollDirection: controller.axis,
                             child: child,
                           );
                         } else {

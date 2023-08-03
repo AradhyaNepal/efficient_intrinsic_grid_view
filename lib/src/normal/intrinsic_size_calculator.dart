@@ -32,6 +32,9 @@ class IntrinsicSizeCalculator{
       );
       _keysList.add(globalKey);
     }
+
+    //Todo: Is this efficient, if no than make it efficient.
+    //Todo: Do performance testing
     widget= Offstage(
       child: Column(
         children:[
@@ -61,7 +64,8 @@ class IntrinsicSizeCalculator{
           rowMaxHeightList.add(rowMaxHeight);
           return rowMaxHeightList;
         }else{
-          double currentHeight=(_keysList[overallIndex].currentContext?.findRenderObject() as RenderBox).size.height;
+          final size=(_keysList[overallIndex].currentContext?.findRenderObject() as RenderBox).size;
+          double currentHeight=axis==Axis.vertical?size.height:size.width;
           if(currentHeight>rowMaxHeight){
             rowMaxHeight=currentHeight;
           }

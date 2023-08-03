@@ -29,9 +29,9 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: 3,
-        rowsIntrinsicHeight: _rowsIntrinsicHeight,
+        crossAxisIntrinsicSize: _rowsIntrinsicHeight,
         totalItems: widgetList.length,
-        gridViewRowHeightRefresh: _refreshCount,
+        crossAxisSizeRefresh: _refreshCount,
       );
   List<double> _rowsIntrinsicHeight = [];
   bool get isInitialized => _rowsIntrinsicHeight.isNotEmpty;

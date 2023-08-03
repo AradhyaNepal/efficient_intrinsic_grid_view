@@ -8,9 +8,9 @@ import 'package:flutter/rendering.dart';
 class IntrinsicDelegate extends SliverGridDelegate {
   const IntrinsicDelegate({
     required this.crossAxisCount,
-    required this.rowsIntrinsicHeight,
+    required this.crossAxisIntrinsicSize,
     required this.totalItems,
-    required this.gridViewRowHeightRefresh,
+    required this.crossAxisSizeRefresh,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
     this.childAspectRatio = 1.0,
@@ -28,12 +28,12 @@ class IntrinsicDelegate extends SliverGridDelegate {
   final double childAspectRatio;
 
   ///Used to track if we need to rebuild the gridview
-  final int gridViewRowHeightRefresh;
+  final int crossAxisSizeRefresh;
   final int totalItems;
 
-  /// Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
-  /// And Second item is max height of second height and so on..
-  final List<double> rowsIntrinsicHeight;
+  /// Overall max size of cross axis accordingly, Eg: If there is 2 item in the list, first item is max size of first crossAxis
+  /// And Second item is max size of second crossAxis and so on..
+  final List<double> crossAxisIntrinsicSize;
 
   bool _debugAssertIsValid() {
     assert(crossAxisCount > 0);
@@ -53,7 +53,7 @@ class IntrinsicDelegate extends SliverGridDelegate {
     final double childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
     return IntrinsicRowTileLayout(
       crossAxisCount: crossAxisCount,
-      rowIntrinsicHeights: rowsIntrinsicHeight,
+      crossAxisIntrinsicSize: crossAxisIntrinsicSize,
       crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
       childCrossAxisExtent: childCrossAxisExtent,
       reverseCrossAxis: false,
@@ -68,7 +68,7 @@ class IntrinsicDelegate extends SliverGridDelegate {
         || oldDelegate.mainAxisSpacing != mainAxisSpacing
         || oldDelegate.crossAxisSpacing != crossAxisSpacing
         || oldDelegate.childAspectRatio != childAspectRatio
-        || oldDelegate.gridViewRowHeightRefresh!=gridViewRowHeightRefresh;
+        || oldDelegate.crossAxisSizeRefresh!=crossAxisSizeRefresh;
   }
 }
 
@@ -81,7 +81,7 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
     required this.crossAxisStride,
     required this.childCrossAxisExtent,
     required this.reverseCrossAxis,
-    required this.rowIntrinsicHeights,
+    required this.crossAxisIntrinsicSize,
     required this.mainAxisSpacing,
     required this.totalItems,
   }) : assert(crossAxisCount > 0),
@@ -96,9 +96,9 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   final bool reverseCrossAxis;
   final double crossAxisStride;
 
-  /// Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
-  /// And Second item is max height of second height and so on..
-  final List<double> rowIntrinsicHeights;
+  /// Overall max size of crossAxis accordingly, Eg: If there is 2 item in the list, first item is max size of first cross axis
+  /// And Second item is max size of second crossAxis and so on..
+  final List<double> crossAxisIntrinsicSize;
   final int totalItems;
   final int extraBuffer=1;
 
@@ -109,10 +109,10 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   @override
   int getMinChildIndexForScrollOffset(double scrollOffset) {
     int fromWhichRowToStart=0;
-    double height=0;
-    while(height<scrollOffset){
-      double currentRowHeight=rowIntrinsicHeights[fromWhichRowToStart]+mainAxisSpacing;
-      height+=currentRowHeight;
+    double fromThisMainAxis=0;
+    while(fromThisMainAxis<scrollOffset){
+      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichRowToStart]+mainAxisSpacing;
+      fromThisMainAxis+=currentMainAxisSize;
       fromWhichRowToStart++;
     }
     fromWhichRowToStart-=extraBuffer;
@@ -130,11 +130,11 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
   /// This method is about, from which index end rendering, below this index item are not rendered.
   @override
   int getMaxChildIndexForScrollOffset(double scrollOffset) {
-    int fromWhichRowToEnd=rowIntrinsicHeights.length-1;
-    double height=_totalHeight;
-    while(height>scrollOffset){
-      double currentRowHeight=rowIntrinsicHeights[fromWhichRowToEnd]+mainAxisSpacing;
-      height-=currentRowHeight;
+    int fromWhichRowToEnd=crossAxisIntrinsicSize.length-1;
+    double fromThisMainAxis=_totalMainAxisItemSize;
+    while(fromThisMainAxis>scrollOffset){
+      double currentMainAxisSize=crossAxisIntrinsicSize[fromWhichRowToEnd]+mainAxisSpacing;
+      fromThisMainAxis-=currentMainAxisSize;
       fromWhichRowToEnd--;
     }
    fromWhichRowToEnd+=1;//No Idea why
@@ -146,24 +146,26 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
     return endItems-1;//No idea why its -1, but even in package its - 1. Without it last one value is not showing
   }
 
-  double get _totalHeight => rowIntrinsicHeights.fold(0.0, (previousValue, element) => previousValue+element);
+  ///Excluding Gap
+  //Todo: Why excluding Gap
+  double get _totalMainAxisItemSize => crossAxisIntrinsicSize.fold(0.0, (previousValue, element) => previousValue+element);
 
 
   //See official flutter docs
   @override
   SliverGridGeometry getGeometryForChildIndex(int index) {
     int rowIndex=index~/crossAxisCount;
-    if(rowIndex<=rowIntrinsicHeights.length-1){
+    if(rowIndex<=crossAxisIntrinsicSize.length-1){
       final double crossAxisStart = (index % crossAxisCount) * crossAxisStride;
-      double maxHeightOfThatRow=rowIntrinsicHeights[rowIndex];
+      double specificCrossAxisIntrinsicSize=crossAxisIntrinsicSize[rowIndex];
       double scrollOffset=0;
       for(int i=0;i<rowIndex;i++){
-        scrollOffset+=rowIntrinsicHeights[i]+mainAxisSpacing;
+        scrollOffset+=crossAxisIntrinsicSize[i]+mainAxisSpacing;
       }
       return SliverGridGeometry(
         scrollOffset: scrollOffset,
         crossAxisOffset: crossAxisStart,
-        mainAxisExtent: maxHeightOfThatRow,
+        mainAxisExtent: specificCrossAxisIntrinsicSize,
         crossAxisExtent: childCrossAxisExtent,
       );
     }else{
@@ -176,14 +178,13 @@ class IntrinsicRowTileLayout extends SliverGridLayout {
     }
   }
 
-  ///Total offset height of the Gridview,
+  ///Total intrinsic height of the Gridview,
   ///counts from top to bottom even if its not rendered.
   ///
-  /// Includes height of all rows in the grid view plus the middle padding/spacing between each row
+  /// Includes size of all cross axis in the grid view plus the middle padding/spacing between them.
   @override
   double computeMaxScrollOffset(int childCount) {
-    final double totalGapHeightCovered=mainAxisSpacing*(childCount~/crossAxisCount);
-    final double totalChildHeightCovered=_totalHeight;
-    return totalChildHeightCovered+totalGapHeightCovered;
+    final double totalMainAxisGapSize=mainAxisSpacing*(childCount~/crossAxisCount);
+    return _totalMainAxisItemSize+totalMainAxisGapSize;
   }
 }
