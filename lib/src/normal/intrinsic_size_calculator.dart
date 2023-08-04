@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 typedef _CalculateAndAdd = Future<void> Function({
   required List<GlobalKey> crossAxisKeyList,
   required Axis axis,
@@ -42,9 +41,11 @@ class IntrinsicSizeCalculator {
   ///Items are hidden, since we have used Offstage widget
   Widget renderAndCalculate(CalculatorInput initInput) {
     _intrinsicMainAxisExtends.clear();
-    return _RenderingOffsetWidget(
-      initInput: initInput,
-      calculateAndAdd: _calculateAndAdd,
+    return Offstage(
+      child: _RenderingOffsetWidget(
+        initInput: initInput,
+        calculateAndAdd: _calculateAndAdd,
+      ),
     );
   }
 
@@ -57,7 +58,7 @@ class IntrinsicSizeCalculator {
     required List<GlobalKey> crossAxisKeyList,
     required Axis axis,
   }) async {
-    await Future.delayed(Duration.zero); //To make sure items are rendered
+    print("Length ${crossAxisKeyList.length}");
     double maxMainAxisExtend = 0;
     for (var key in crossAxisKeyList) {
       final size = (key.currentContext?.findRenderObject() as RenderBox).size;
@@ -86,75 +87,69 @@ class _RenderingOffsetWidget extends StatefulWidget {
 }
 
 class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
-  // ignore: avoid_init_to_null
-  Size? parentConstrain = null;
+  Size? parentConstrain;
   int startIndex = 0;
   late int maxCrossAxisIndex = widget.initInput.itemList.length - 1;
 
-  List<GlobalKey> _renderingKeyList=[];
+  List<GlobalKey> _renderingKeyList = [];
 
   @override
   Widget build(BuildContext context) {
-    return Offstage(
-      child: Builder(
-        builder: (context) {
-          if (parentConstrain == null) {
-            return LayoutBuilder(builder: (context, constrain) {
-              Future.delayed(Duration.zero, () {
-                parentConstrain = Size(constrain.maxWidth, constrain.maxHeight);
-                setState(() {});
-              });
-              return const SizedBox();
-            });
-          } else {
-            Future.delayed(Duration.zero, () async {
-              await widget.calculateAndAdd(
-                crossAxisKeyList: _renderingKeyList,
-                axis: widget.initInput.axis,
-              );
-              if (startIndex >= maxCrossAxisIndex) {
-                widget.initInput.onSuccess();
-              } else {
-                startIndex += widget.initInput.crossAxisItemsCount;
-                setState(() {});
-              }
-            });
-            var endIndex = startIndex + widget.initInput.crossAxisItemsCount;
-            if (endIndex > maxCrossAxisIndex) {
-              endIndex = maxCrossAxisIndex;
-            }
-            final renderingList =
-            widget.initInput.itemList.sublist(startIndex, endIndex + 1);
-            _renderingKeyList=_renderingKeyList.map((e) => GlobalKey()).toList();
-            return SizedBox(
-              height: widget.initInput.axis == Axis.horizontal
-                  ? parentConstrain!.height
-                  : null,
-              width: widget.initInput.axis == Axis.vertical
-                  ? parentConstrain!.width
-                  : null,
-              child: Flex(
-                direction: widget.initInput.axis == Axis.horizontal
-                    ? Axis.vertical
-                    : Axis.horizontal,
-                children: [
-                  for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
-                    Builder(
-                      builder: (context) {
-                        final element = renderingList.elementAtOrNull(i);
-                        if (element == null) return const Spacer();
-                        return Expanded(
-                          key: _renderingKeyList[i],
-                          child: element,
-                        );
-                      },
-                    ),
-                ],
+    if (parentConstrain == null) {
+      return LayoutBuilder(builder: (context, constrain) {
+        Future.delayed(Duration.zero, () {
+          parentConstrain = Size(constrain.maxWidth, constrain.maxHeight);
+          setState(() {});
+        });
+        return const SizedBox();
+      });
+    } else {
+      var endIndex = startIndex + widget.initInput.crossAxisItemsCount;
+      if (endIndex > maxCrossAxisIndex) {
+        endIndex = maxCrossAxisIndex;
+      }
+      final renderingList =
+      widget.initInput.itemList.sublist(startIndex, endIndex + 1);
+      _renderingKeyList = renderingList.map((e) => GlobalKey()).toList();
+
+      Future.delayed(Duration.zero, () async {
+        await widget.calculateAndAdd(
+          crossAxisKeyList: _renderingKeyList,
+          axis: widget.initInput.axis,
+        );
+        if (startIndex >= maxCrossAxisIndex) {
+          widget.initInput.onSuccess();
+        } else {
+          startIndex += widget.initInput.crossAxisItemsCount;
+          setState(() {});
+        }
+      });
+      return SizedBox(
+        height: widget.initInput.axis == Axis.horizontal
+            ? parentConstrain!.height
+            : null,
+        width: widget.initInput.axis == Axis.vertical
+            ? parentConstrain!.width
+            : null,
+        child: Flex(
+          direction: widget.initInput.axis == Axis.horizontal
+              ? Axis.vertical
+              : Axis.horizontal,
+          children: [
+            for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
+              Builder(
+                builder: (context) {
+                  final element = renderingList.elementAtOrNull(i);
+                  if (element == null) return const Spacer();
+                  return Expanded(
+                    key: _renderingKeyList[i],
+                    child: element,
+                  );
+                },
               ),
-            );
-          }
-        },
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
 }

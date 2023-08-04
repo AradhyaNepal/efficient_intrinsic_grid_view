@@ -4,6 +4,10 @@ part of '../widget.dart';
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
+  IntrinsicController() : super(true);
+
+  int refreshCount=0;
+  final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
   var _beenInitializedOnce = false; //Make completer
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
@@ -17,7 +21,7 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
     super.value = true;
-    super.addListener(() {
+    super.addListener(() {//Todo: What about removing the listener because in next change too this lister is being called, concurrency
       if (!super.value) {
         _widgetList = newValue;
       }
@@ -34,7 +38,8 @@ class IntrinsicController extends ValueNotifier<bool> {
     if (!(_beenInitializedOnce && preventRebuild)) {
       _axis = axis;
       _crossAxisCount = crossAxisCount;
-      widgetList = [...widgets]; //Todo: Should i do it??
+      _widgetList=widgets;
+      super.value=true;
     }
   }
 
@@ -42,27 +47,29 @@ class IntrinsicController extends ValueNotifier<bool> {
   double get getSize => _intrinsicMainAxisExtends.fold(
       0, (previousValue, element) => previousValue + element);
 
-  late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 
-  int _refreshCount = 0;
+
 
   IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: _crossAxisCount,
         crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
         totalItems: widgetList.length,
-        crossAxisSizeRefresh: _refreshCount,
+        crossAxisSizeRefresh: refreshCount,
       );
   List<double> _intrinsicMainAxisExtends = [];
 
-  bool get isInitialized => _intrinsicMainAxisExtends.isNotEmpty;
+  /// Have caching, at first when is in initializing phase, do not display gridview.
+  /// On second time, even if its initializing, display old gridview
+  /// till new gridview data is not loaded.
+  bool get canDisplayGridView => _beenInitializedOnce || !super.value;
 
   Widget renderAndCalculate() {
+    print("Was here ${_widgetList.length} ${super.value}");
     if (!super.value) return const SizedBox();
-    //Todo: Better blockers, below commented blocker was also good.
-    // But previously it didn't worked. Might Future.delayed zero can make it work.
-    // if(_widgetList.isEmpty)return const SizedBox();
-    // if(_crossAxisCount<=0)return;
-
+    if(_widgetList.isEmpty || _crossAxisCount<=0){
+      return const SizedBox();
+    }
+    print("Was here too${_widgetList.length}");
     return _intrinsicHeightCalculator.renderAndCalculate(
       CalculatorInput(
           itemList: _widgetList,
@@ -71,14 +78,11 @@ class IntrinsicController extends ValueNotifier<bool> {
           onSuccess: () async {
             _intrinsicMainAxisExtends =
                 _intrinsicHeightCalculator.intrinsicMainAxisExtends;
-            _refreshCount++;
             _beenInitializedOnce = true;
-            super.value = false;
+            refreshCount++;
+            super.value=false;
           }),
     );
   }
 
-  IntrinsicController() : super(true) {
-    _intrinsicHeightCalculator = IntrinsicSizeCalculator();
-  }
 }

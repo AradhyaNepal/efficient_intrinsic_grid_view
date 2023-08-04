@@ -18,6 +18,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
 
   @override
   Widget build(BuildContext context) {
+    // if(controller._widgetList.isEmpty)return const SizedBox();
     return ControllerInheritedWidget(
       controller: controller,
       child: ValueListenableBuilder(
@@ -25,8 +26,8 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
           builder: (context, isLoading, child) {
             return Column(
               children: [
-                if (isLoading) controller.renderAndCalculate(),
-                if (controller.isInitialized)
+                if (controller.value) controller.renderAndCalculate(),
+                if (controller.canDisplayGridView)
                   Expanded(
                     child: GridView.builder(
                       scrollDirection: controller._axis,
