@@ -61,7 +61,8 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   Widget initRendering() {
     if (!super.value) return const SizedBox();
-    //Todo: Better blockers
+    //Todo: Better blockers, below commented blocker was also good.
+    // But previously it didn't worked. Might Future.delayed zero can make it work.
     // if(_widgetList.isEmpty)return const SizedBox();
     print("Was here");
 

@@ -34,6 +34,7 @@ class IntrinsicSizeCalculator {
 
     // ignore: avoid_init_to_null
     Size? parentConstrain=null;
+    //Todo: Make separate Widget
     return StatefulBuilder(
       builder: (context, setState) {
         if(parentConstrain==null){
@@ -51,9 +52,11 @@ class IntrinsicSizeCalculator {
 
             onSuccess();
           });
-          //Todo: Is this efficient, if no than make it efficient.
-          //Todo: Do performance testing
-          //Todo: What if gridview have only half width or half height, use key to first find parent constrains
+          //Todo: Do Performance testing
+          //  And in research and development branch, implement
+          // another way where crossAxisCount items are rendered and max value calculated, one by one.
+          //Right now everything is happening at once, which is causing high jank on UI,
+          //What if there are many items, my widget might perform bad.
           return Offstage(
             child: Flex(
               direction: axis,
