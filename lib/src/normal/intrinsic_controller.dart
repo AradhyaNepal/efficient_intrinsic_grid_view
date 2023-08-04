@@ -64,12 +64,10 @@ class IntrinsicController extends ValueNotifier<bool> {
   bool get canDisplayGridView => _beenInitializedOnce || !super.value;
 
   Widget renderAndCalculate() {
-    print("Was here ${_widgetList.length} ${super.value}");
     if (!super.value) return const SizedBox();
     if(_widgetList.isEmpty || _crossAxisCount<=0){
       return const SizedBox();
     }
-    print("Was here too${_widgetList.length}");
     return _intrinsicHeightCalculator.renderAndCalculate(
       CalculatorInput(
           itemList: _widgetList,

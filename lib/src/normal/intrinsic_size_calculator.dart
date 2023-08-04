@@ -58,7 +58,6 @@ class IntrinsicSizeCalculator {
     required List<GlobalKey> crossAxisKeyList,
     required Axis axis,
   }) async {
-    print("Length ${crossAxisKeyList.length}");
     double maxMainAxisExtend = 0;
     for (var key in crossAxisKeyList) {
       final size = (key.currentContext?.findRenderObject() as RenderBox).size;
@@ -109,7 +108,7 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         endIndex = maxCrossAxisIndex;
       }
       final renderingList =
-      widget.initInput.itemList.sublist(startIndex, endIndex + 1);
+          widget.initInput.itemList.sublist(startIndex, endIndex + 1);
       _renderingKeyList = renderingList.map((e) => GlobalKey()).toList();
 
       Future.delayed(Duration.zero, () async {
@@ -136,7 +135,7 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
               ? Axis.vertical
               : Axis.horizontal,
           children: [
-            for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
+            for (int i = 0; i <= widget.initInput.crossAxisItemsCount; i++)
               Builder(
                 builder: (context) {
                   final element = renderingList.elementAtOrNull(i);
