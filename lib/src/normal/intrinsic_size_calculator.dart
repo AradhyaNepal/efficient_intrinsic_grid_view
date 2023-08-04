@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
 
-import '../comman/utils.dart';
+
+typedef _CalculateAndAdd = Future<void> Function({
+  required List<GlobalKey> crossAxisKeyList,
+  required Axis axis,
+});
 
 //Todo: Refactor variable to denote both cross axis and main axis scrolling
 //Todo: Make this class private, secure it
 //Todo: Optimize
 ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
+///
+///
+///
+//Todo: Make it private
+class CalculatorInput {
+  final VoidCallback onSuccess;
+  final List<Widget> itemList;
+  final int crossAxisItemsCount;
+  final Axis axis;
+
+  CalculatorInput({
+    required this.onSuccess,
+    required this.itemList,
+    required this.crossAxisItemsCount,
+    required this.axis,
+  });
+}
+
 class IntrinsicSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
   IntrinsicSizeCalculator();
+
   final List<double> _intrinsicMainAxisExtends = [];
 
   ///Unmodifiable list, do not try to modify it.
@@ -17,65 +40,11 @@ class IntrinsicSizeCalculator {
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget initByRendering({
-    required VoidCallback onSuccess,
-    required List<Widget> itemList,
-    required int crossAxisItemsCount,
-    required Axis axis,
-  }) {
+  Widget renderAndCalculate(CalculatorInput initInput) {
     _intrinsicMainAxisExtends.clear();
-    // ignore: avoid_init_to_null
-    Size? parentConstrain = null;
-    int currentCrossAxisIndex = 0;
-    int maxCrossAxisIndex =
-        getCrossAxisCount(itemList.length, crossAxisItemsCount) - 1;
-    //Todo: Make separate Widget
-    return StatefulBuilder(
-      builder: (context, setState) {
-        if (parentConstrain == null) {
-          return LayoutBuilder(builder: (context, constrain) {
-            Future.delayed(Duration.zero, () {
-              parentConstrain = Size(constrain.maxWidth, constrain.maxHeight);
-              setState(() {});
-            });
-            return const SizedBox();
-          });
-        } else {
-          Future.delayed(Duration.zero, () async {
-            _intrinsicMainAxisExtends.add(
-              await getOverallMaxHeight(
-                crossAxisIndex: currentCrossAxisIndex,
-                crossAxisKeyList: [], //Todo: WARNING, IMPLEMENT THIS FAST
-                axis: axis,
-              ),
-            );
-            if (currentCrossAxisIndex == maxCrossAxisIndex) {
-              onSuccess();
-            } else {
-              currentCrossAxisIndex++;
-              setState((){});
-            }
-          });
-          //Todo: Change the entire rendering with key algorithm
-          return Offstage(
-            child: Flex(
-              direction: axis,
-              children: [
-                for (int i = 0; i < itemList.length; i++)
-                  SizedBox(
-                    height: axis == Axis.horizontal
-                        ? parentConstrain!.height / crossAxisItemsCount
-                        : null,
-                    width: axis == Axis.vertical
-                        ? parentConstrain!.width / crossAxisItemsCount
-                        : null,
-                    child: const SizedBox(),//Todo: WARNING, IMPLEMENT THIS FAST
-                  )
-              ],
-            ),
-          );
-        }
-      },
+    return _RenderingOffsetWidget(
+      initInput: initInput,
+      calculateAndAdd: _calculateAndAdd,
     );
   }
 
@@ -84,8 +53,7 @@ class IntrinsicSizeCalculator {
   ///
   /// Returns Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
   /// And Second item is max height of second height and so on..
-  Future<double> getOverallMaxHeight({
-    required int crossAxisIndex, //Todo: Document
+  Future<void> _calculateAndAdd({
     required List<GlobalKey> crossAxisKeyList,
     required Axis axis,
   }) async {
@@ -99,6 +67,94 @@ class IntrinsicSizeCalculator {
         maxMainAxisExtend = currentMainAxisExtend;
       }
     }
-    return maxMainAxisExtend;
+    _intrinsicMainAxisExtends.add(maxMainAxisExtend);
+  }
+}
+
+class _RenderingOffsetWidget extends StatefulWidget {
+  final CalculatorInput initInput;
+  final _CalculateAndAdd calculateAndAdd;
+
+  const _RenderingOffsetWidget({
+    super.key,
+    required this.initInput,
+    required this.calculateAndAdd,
+  });
+
+  @override
+  State<_RenderingOffsetWidget> createState() => _RenderingOffsetWidgetState();
+}
+
+class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
+  // ignore: avoid_init_to_null
+  Size? parentConstrain = null;
+  int startIndex = 0;
+  late int maxCrossAxisIndex = widget.initInput.itemList.length - 1;
+
+  List<GlobalKey> _renderingKeyList=[];
+
+  @override
+  Widget build(BuildContext context) {
+    return Offstage(
+      child: Builder(
+        builder: (context) {
+          if (parentConstrain == null) {
+            return LayoutBuilder(builder: (context, constrain) {
+              Future.delayed(Duration.zero, () {
+                parentConstrain = Size(constrain.maxWidth, constrain.maxHeight);
+                setState(() {});
+              });
+              return const SizedBox();
+            });
+          } else {
+            Future.delayed(Duration.zero, () async {
+              await widget.calculateAndAdd(
+                crossAxisKeyList: _renderingKeyList,
+                axis: widget.initInput.axis,
+              );
+              if (startIndex >= maxCrossAxisIndex) {
+                widget.initInput.onSuccess();
+              } else {
+                startIndex += widget.initInput.crossAxisItemsCount;
+                setState(() {});
+              }
+            });
+            var endIndex = startIndex + widget.initInput.crossAxisItemsCount;
+            if (endIndex > maxCrossAxisIndex) {
+              endIndex = maxCrossAxisIndex;
+            }
+            final renderingList =
+            widget.initInput.itemList.sublist(startIndex, endIndex + 1);
+            _renderingKeyList=_renderingKeyList.map((e) => GlobalKey()).toList();
+            return SizedBox(
+              height: widget.initInput.axis == Axis.horizontal
+                  ? parentConstrain!.height
+                  : null,
+              width: widget.initInput.axis == Axis.vertical
+                  ? parentConstrain!.width
+                  : null,
+              child: Flex(
+                direction: widget.initInput.axis == Axis.horizontal
+                    ? Axis.vertical
+                    : Axis.horizontal,
+                children: [
+                  for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
+                    Builder(
+                      builder: (context) {
+                        final element = renderingList.elementAtOrNull(i);
+                        if (element == null) return const Spacer();
+                        return Expanded(
+                          key: _renderingKeyList[i],
+                          child: element,
+                        );
+                      },
+                    ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 }

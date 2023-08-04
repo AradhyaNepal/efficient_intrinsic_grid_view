@@ -25,7 +25,7 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
           builder: (context, isLoading, child) {
             return Column(
               children: [
-                if (isLoading) controller.initRendering(),
+                if (isLoading) controller.renderAndCalculate(),
                 if (controller.isInitialized)
                   Expanded(
                     child: GridView.builder(

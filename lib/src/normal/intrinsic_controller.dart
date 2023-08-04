@@ -56,23 +56,26 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   bool get isInitialized => _intrinsicMainAxisExtends.isNotEmpty;
 
-  Widget initRendering() {
+  Widget renderAndCalculate() {
     if (!super.value) return const SizedBox();
     //Todo: Better blockers, below commented blocker was also good.
     // But previously it didn't worked. Might Future.delayed zero can make it work.
     // if(_widgetList.isEmpty)return const SizedBox();
     // if(_crossAxisCount<=0)return;
 
-    return _intrinsicHeightCalculator.initByRendering(
-      itemList: _widgetList,
-      crossAxisItemsCount: _crossAxisCount,
-        axis: _axis,
-        onSuccess: () async {
-        _intrinsicMainAxisExtends=_intrinsicHeightCalculator.intrinsicMainAxisExtends;
-      _refreshCount++;
-      _beenInitializedOnce = true;
-      super.value = false;
-    });
+    return _intrinsicHeightCalculator.renderAndCalculate(
+      CalculatorInput(
+          itemList: _widgetList,
+          crossAxisItemsCount: _crossAxisCount,
+          axis: _axis,
+          onSuccess: () async {
+            _intrinsicMainAxisExtends =
+                _intrinsicHeightCalculator.intrinsicMainAxisExtends;
+            _refreshCount++;
+            _beenInitializedOnce = true;
+            super.value = false;
+          }),
+    );
   }
 
   IntrinsicController() : super(true) {
