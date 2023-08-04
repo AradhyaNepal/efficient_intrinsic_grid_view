@@ -1,11 +1,12 @@
 part of '../widget.dart';
+
 //Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
-  var _beenInitializedOnce=false;//Make completer
-  Axis _axis=Axis.vertical;
-  int _crossAxisCount=0;//0 means not set yet
+  var _beenInitializedOnce = false; //Make completer
+  Axis _axis = Axis.vertical;
+  int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
 
   ///Returns unmodifiable list, so you cannot update it.
@@ -15,9 +16,6 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
-    _intrinsicHeightCalculator.axis=_axis;
-    _intrinsicHeightCalculator.crossAxisCount=_crossAxisCount;
-    _intrinsicHeightCalculator.itemList = newValue;
     super.value = true;
     super.addListener(() {
       if (!super.value) {
@@ -33,11 +31,10 @@ class IntrinsicController extends ValueNotifier<bool> {
     required Axis axis,
     required int crossAxisCount,
   }) {
-    if(!(_beenInitializedOnce && preventRebuild)){
-      _axis=axis;
-      _crossAxisCount=crossAxisCount;
-      //Below must be at last
-      widgetList=[...widgets];//Todo: Should i do it??
+    if (!(_beenInitializedOnce && preventRebuild)) {
+      _axis = axis;
+      _crossAxisCount = crossAxisCount;
+      widgetList = [...widgets]; //Todo: Should i do it??
     }
   }
 
@@ -64,35 +61,21 @@ class IntrinsicController extends ValueNotifier<bool> {
     //Todo: Better blockers, below commented blocker was also good.
     // But previously it didn't worked. Might Future.delayed zero can make it work.
     // if(_widgetList.isEmpty)return const SizedBox();
+    // if(_crossAxisCount<=0)return;
     print("Was here");
 
-    return _intrinsicHeightCalculator.initByRendering(onSuccess: calculateMaxHeight);
+    return _intrinsicHeightCalculator.initByRendering(
+      itemList: _widgetList,
+      crossAxisCount: _crossAxisCount,
+        axis: _axis,
+        onSuccess: () async {
+      _refreshCount++;
+      _beenInitializedOnce = true;
+      super.value = false;
+    });
   }
 
   IntrinsicController() : super(true) {
-    _intrinsicHeightCalculator = IntrinsicSizeCalculator(
-      itemList: widgetList,
-      crossAxisCount: _crossAxisCount,
-      axis: _axis,
-    );
-  }
-
-  /// Calculate maxHeight in next stack.
-  ///
-  /// Make sure to call initByRendering before it.
-  /// (Or just one stack after it but Synchronous, since this method perform task in next stack)
-  ///
-  /// ->UI Uses Old Cache Max Height List while New Max Height is being calculated <-
-  Future<void> calculateMaxHeight() async {
-    if(_crossAxisCount<=0)return;
-    if (!super.value) return;
-    //Delay to calculate Height in next frame after initRendering is done,
-    // else max height is calculated using old data.
-    await Future.delayed(Duration.zero);
-    _rowsIntrinsicHeight =
-        await _intrinsicHeightCalculator.getOverallMaxHeight();
-    _refreshCount++;
-    super.value = false;
-    _beenInitializedOnce=true;
+    _intrinsicHeightCalculator = IntrinsicSizeCalculator();
   }
 }
