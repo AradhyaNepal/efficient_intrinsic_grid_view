@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../comman/utils.dart';
+
 //Todo: Refactor variable to denote both cross axis and main axis scrolling
 //Todo: Make this class private, secure it
 //Todo: Optimize
@@ -7,9 +9,6 @@ import 'package:flutter/material.dart';
 class IntrinsicSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
   IntrinsicSizeCalculator();
-
-  final List<GlobalKey> _keysList = []; //Todo: Remove this key
-  final List<Widget> _renderList = []; //Todo: Remove this list
   final List<double> _intrinsicMainAxisExtends = [];
 
   ///Unmodifiable list, do not try to modify it.
@@ -21,23 +20,15 @@ class IntrinsicSizeCalculator {
   Widget initByRendering({
     required VoidCallback onSuccess,
     required List<Widget> itemList,
-    required int crossAxisCount,
+    required int crossAxisItemsCount,
     required Axis axis,
   }) {
-    _renderList.clear();
-    _keysList.clear();
     _intrinsicMainAxisExtends.clear();
-    for (int index = 0; index < itemList.length; index++) {
-      final globalKey = GlobalKey();
-      _renderList.add(SizedBox(
-        key: globalKey,
-        child: itemList[index],
-      ));
-      _keysList.add(globalKey);
-    }
-
     // ignore: avoid_init_to_null
     Size? parentConstrain = null;
+    int currentCrossAxisIndex = 0;
+    int maxCrossAxisIndex =
+        getCrossAxisCount(itemList.length, crossAxisItemsCount) - 1;
     //Todo: Make separate Widget
     return StatefulBuilder(
       builder: (context, setState) {
@@ -50,14 +41,22 @@ class IntrinsicSizeCalculator {
             return const SizedBox();
           });
         } else {
-          Future.delayed(Duration.zero, () {
-            onSuccess();
+          Future.delayed(Duration.zero, () async {
+            _intrinsicMainAxisExtends.add(
+              await getOverallMaxHeight(
+                crossAxisIndex: currentCrossAxisIndex,
+                crossAxisKeyList: [], //Todo: WARNING, IMPLEMENT THIS FAST
+                axis: axis,
+              ),
+            );
+            if (currentCrossAxisIndex == maxCrossAxisIndex) {
+              onSuccess();
+            } else {
+              currentCrossAxisIndex++;
+              setState((){});
+            }
           });
-          //Todo: Do Performance testing
-          //  And in research and development branch, implement
-          // another way where crossAxisCount items are rendered and max value calculated, one by one.
-          //Right now everything is happening at once, which is causing high jank on UI,
-          //What if there are many items, my widget might perform bad.
+          //Todo: Change the entire rendering with key algorithm
           return Offstage(
             child: Flex(
               direction: axis,
@@ -65,12 +64,12 @@ class IntrinsicSizeCalculator {
                 for (int i = 0; i < itemList.length; i++)
                   SizedBox(
                     height: axis == Axis.horizontal
-                        ? parentConstrain!.height / crossAxisCount
+                        ? parentConstrain!.height / crossAxisItemsCount
                         : null,
                     width: axis == Axis.vertical
-                        ? parentConstrain!.width / crossAxisCount
+                        ? parentConstrain!.width / crossAxisItemsCount
                         : null,
-                    child: _renderList[i],
+                    child: const SizedBox(),//Todo: WARNING, IMPLEMENT THIS FAST
                   )
               ],
             ),
@@ -85,13 +84,12 @@ class IntrinsicSizeCalculator {
   ///
   /// Returns Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
   /// And Second item is max height of second height and so on..
-  Future<void> getOverallMaxHeight({
+  Future<double> getOverallMaxHeight({
     required int crossAxisIndex, //Todo: Document
     required List<GlobalKey> crossAxisKeyList,
     required Axis axis,
   }) async {
-    await Future.delayed(
-        Duration.zero); //To make sure items are rendered
+    await Future.delayed(Duration.zero); //To make sure items are rendered
     double maxMainAxisExtend = 0;
     for (var key in crossAxisKeyList) {
       final size = (key.currentContext?.findRenderObject() as RenderBox).size;
@@ -101,6 +99,6 @@ class IntrinsicSizeCalculator {
         maxMainAxisExtend = currentMainAxisExtend;
       }
     }
-    _intrinsicMainAxisExtends.add(maxMainAxisExtend);
+    return maxMainAxisExtend;
   }
 }

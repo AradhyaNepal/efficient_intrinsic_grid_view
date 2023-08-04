@@ -1,3 +1,4 @@
+import 'package:efficient_intrinsic_gridview/src/comman/utils.dart';
 import 'package:efficient_intrinsic_gridview/src/normal/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
@@ -66,6 +67,8 @@ part 'normal/intrinsic_controller.dart';
 ///
 /// And that's why my package is efficient!
 
+
+//Todo: You need mainAxisSpacing and crossAxisSpacing, else have to worry about verifying that at last item do not apply bottom padding
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
   const EfficientIntrinsicGridView._init({super.key});
 

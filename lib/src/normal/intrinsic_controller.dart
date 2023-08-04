@@ -39,7 +39,7 @@ class IntrinsicController extends ValueNotifier<bool> {
   }
 
   //Todo: Currently excluding gap, why??
-  double get getSize => _rowsIntrinsicHeight.fold(
+  double get getSize => _intrinsicMainAxisExtends.fold(
       0, (previousValue, element) => previousValue + element);
 
   late IntrinsicSizeCalculator _intrinsicHeightCalculator;
@@ -48,13 +48,13 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: _crossAxisCount,
-        crossAxisIntrinsicSize: _rowsIntrinsicHeight,
+        crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
         totalItems: widgetList.length,
         crossAxisSizeRefresh: _refreshCount,
       );
-  List<double> _rowsIntrinsicHeight = [];
+  List<double> _intrinsicMainAxisExtends = [];
 
-  bool get isInitialized => _rowsIntrinsicHeight.isNotEmpty;
+  bool get isInitialized => _intrinsicMainAxisExtends.isNotEmpty;
 
   Widget initRendering() {
     if (!super.value) return const SizedBox();
@@ -62,13 +62,13 @@ class IntrinsicController extends ValueNotifier<bool> {
     // But previously it didn't worked. Might Future.delayed zero can make it work.
     // if(_widgetList.isEmpty)return const SizedBox();
     // if(_crossAxisCount<=0)return;
-    print("Was here");
 
     return _intrinsicHeightCalculator.initByRendering(
       itemList: _widgetList,
-      crossAxisCount: _crossAxisCount,
+      crossAxisItemsCount: _crossAxisCount,
         axis: _axis,
         onSuccess: () async {
+        _intrinsicMainAxisExtends=_intrinsicHeightCalculator.intrinsicMainAxisExtends;
       _refreshCount++;
       _beenInitializedOnce = true;
       super.value = false;
