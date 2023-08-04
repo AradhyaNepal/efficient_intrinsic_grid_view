@@ -61,9 +61,11 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   Widget initRendering() {
     if (!super.value) return const SizedBox();
+    //Todo: Better blockers
+    // if(_widgetList.isEmpty)return const SizedBox();
     print("Was here");
 
-    return _intrinsicHeightCalculator.initByRendering();
+    return _intrinsicHeightCalculator.initByRendering(onSuccess: calculateMaxHeight);
   }
 
   IntrinsicController() : super(true) {

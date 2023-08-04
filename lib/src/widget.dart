@@ -11,7 +11,7 @@ part 'builder/builder_intrinsic_gridview.dart';
 
 part 'normal/intrinsic_controller.dart';
 
-/// A GridView which allowed every crossAxis to have its own intrinsic size, i.e.
+/// A GridView which allow every crossAxis to have its own intrinsic size(mainAxisExtend), i.e.
 /// its own intrinsic height for vertical scrolling or its own intrinsic width for horizontal scrolling.
 /// ### What is Intrinsic?
 /// Lets say, you are using GridView with vertical scrolling, in this case crossAxis means every Row.
@@ -23,7 +23,8 @@ part 'normal/intrinsic_controller.dart';
 /// or internally [GridView] will automatically calculates one mainAxisExtent for every crossAxis.
 /// Lets say A crossAxis have max size X and B crossAxis have max size Y.
 /// In [GridView] you are forced to use only one mainAxisExtent, say Y.
-/// So even A crossAxis have to use Y mainAxisExtent, leaving unnecessary white spaces.
+/// So even A crossAxis have to use Y mainAxisExtent, leaving unnecessary white spaces its smaller than A
+/// or may throw RenderFlex Overflow if its bigger than B.
 ///
 /// And that's how I come up with an idea of creating this package!.
 /// In this package we have multiple mainAxisExtent as per every crossAxis's elements max size.
@@ -34,7 +35,7 @@ part 'normal/intrinsic_controller.dart';
 /// This Intrinsic name was inspired from [IntrinsicHeight] and [IntrinsicWidth] widget provided by Flutter framework.
 /// To demonstrate what inefficiency is, I have also created [EfficientIntrinsicGridView.shrinkWrap],
 /// which is made from combination of [IntrinsicHeight] and [IntrinsicWidth]
-/// on scrollable [Row] and [Column] to render the gridview.
+/// on scrollable [Row] and [Column] to render the [GridView].
 /// I have named it shrinkWrap, because most of new developer learns about shrinkWrap
 /// when flutter is throwing has infinite size error on Scrolling item.
 /// This widget prevents that error.
@@ -63,7 +64,7 @@ part 'normal/intrinsic_controller.dart';
 /// Whether the items available are 10 or 100, the memory consumption
 /// while rendering those elements will remain the same.
 ///
-/// And that's why its efficient!
+/// And that's why my package is efficient!
 
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
   const EfficientIntrinsicGridView._init({super.key});

@@ -36,7 +36,7 @@ class _GridviewSolutionState extends State<GridviewSolution> {
         ],
       ),
       body: EfficientIntrinsicGridView(
-        preventOverflow: true,
+        preventOverflow: false,
         preventRebuild: false,
         intrinsicController: controller,
         crossAxisCount: 2,

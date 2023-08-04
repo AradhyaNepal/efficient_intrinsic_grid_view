@@ -1,6 +1,8 @@
 part of '../widget.dart';
 
 
+///Todo: Make it scrollable
+///Todo: Intrinsicly calculate size
 class _GridUsingColumnRow extends EfficientIntrinsicGridView  {
   final IndexedWidgetBuilder itemBuilder;
   final int itemCount;
