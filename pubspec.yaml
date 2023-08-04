@@ -7,7 +7,7 @@ description:
 
 repository: https://github.com/AradhyaNepal/efficient_intrinsic_gridview
 issue_tracker: https://github.com/AradhyaNepal/efficient_intrinsic_gridview/issues
-version: 0.0.2-unstable-release
+version: 0.0.3-unstable-release
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
