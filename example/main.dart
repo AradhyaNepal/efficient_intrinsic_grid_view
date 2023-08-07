@@ -40,7 +40,6 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
         preventRebuild: true,
         intrinsicController: controller,
         crossAxisCount: 2,
-
         children: [
           for (int i = 0; i < 1000; i++)
             Container(

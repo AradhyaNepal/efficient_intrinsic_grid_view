@@ -13,11 +13,9 @@ class IntrinsicDelegate extends SliverGridDelegate {
     required this.crossAxisSizeRefresh,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
-    this.childAspectRatio = 1.0,
   }) : assert(crossAxisCount > 0),
         assert(mainAxisSpacing >= 0),
-        assert(crossAxisSpacing >= 0),
-        assert(childAspectRatio > 0);
+        assert(crossAxisSpacing >= 0);
 
 
   //Todo: Copy paste official
@@ -25,7 +23,6 @@ class IntrinsicDelegate extends SliverGridDelegate {
   final int crossAxisCount;
   final double mainAxisSpacing;
   final double crossAxisSpacing;
-  final double childAspectRatio;
 
   ///Used to track if we need to rebuild the gridview
   final int crossAxisSizeRefresh;
@@ -39,7 +36,6 @@ class IntrinsicDelegate extends SliverGridDelegate {
     assert(crossAxisCount > 0);
     assert(mainAxisSpacing >= 0.0);
     assert(crossAxisSpacing >= 0.0);
-    assert(childAspectRatio > 0.0);
     return true;
   }
 
@@ -67,7 +63,6 @@ class IntrinsicDelegate extends SliverGridDelegate {
     return oldDelegate.crossAxisCount != crossAxisCount
         || oldDelegate.mainAxisSpacing != mainAxisSpacing
         || oldDelegate.crossAxisSpacing != crossAxisSpacing
-        || oldDelegate.childAspectRatio != childAspectRatio
         || oldDelegate.crossAxisSizeRefresh!=crossAxisSizeRefresh;
   }
 }

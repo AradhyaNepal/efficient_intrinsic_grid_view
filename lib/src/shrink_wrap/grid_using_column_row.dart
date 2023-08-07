@@ -107,7 +107,7 @@ class _RowWise extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int rowCounts=_getRowCount(itemCount, columnCounts);
+    int rowCounts=getCrossAxisCount(itemCount, columnCounts);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -131,8 +131,6 @@ class _RowWise extends StatelessWidget {
       ],
     );
   }
-  int _getRowCount(int itemCount,int columnCounts){
-    return (itemCount~/columnCounts)+((itemCount%columnCounts)==0?0:1);
-  }
+
 }
 

@@ -1,110 +1,154 @@
 import 'package:flutter/material.dart';
 
-//Todo: Refactor variable to denote both cross axis and main axis scrolling
-///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-class IntrinsicSizeCalculator {
-  List<Widget> itemList;
-  int crossAxisCount;
-  Axis axis;
+typedef _CalculateAndAdd = Future<void> Function({
+  required List<GlobalKey> crossAxisKeyList,
+  required Axis axis,
+});
 
-  ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-  IntrinsicSizeCalculator({
+//Todo: Refactor variable to denote both cross axis and main axis scrolling
+//Todo: Make this class private, secure it
+//Todo: Optimize
+///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
+///
+///
+///
+//Todo: Make it private
+class CalculatorInput {
+  final VoidCallback onSuccess;
+  final List<Widget> itemList;
+  final int crossAxisItemsCount;
+  final Axis axis;
+
+  CalculatorInput({
+    required this.onSuccess,
     required this.itemList,
-    required this.crossAxisCount,
+    required this.crossAxisItemsCount,
     required this.axis,
   });
+}
 
-  final List<GlobalKey> _keysList = [];
-  final List<Widget> _renderList = [];
+class IntrinsicSizeCalculator {
+  ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
+  IntrinsicSizeCalculator();
+
+  final List<double> _intrinsicMainAxisExtends = [];
+
+  ///Unmodifiable list, do not try to modify it.
+  List<double> get intrinsicMainAxisExtends =>
+      List.unmodifiable(_intrinsicMainAxisExtends);
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget initByRendering({required VoidCallback onSuccess}) {
-    _renderList.clear();
-    _keysList.clear();
-    for (int index = 0; index < itemList.length; index++) {
-      final globalKey = GlobalKey();
-      _renderList.add(SizedBox(
-        key: globalKey,
-        child: itemList[index],
-      ));
-      _keysList.add(globalKey);
-    }
-
-
-    // ignore: avoid_init_to_null
-    Size? parentConstrain=null;
-    //Todo: Make separate Widget
-    return StatefulBuilder(
-      builder: (context, setState) {
-        if(parentConstrain==null){
-          return LayoutBuilder(
-            builder: (context,constrain) {
-              Future.delayed(Duration.zero,(){
-                parentConstrain=Size(constrain.maxWidth,constrain.maxHeight);
-                setState((){});
-              });
-              return const SizedBox();
-            }
-          );
-        }else{
-          Future.delayed(Duration.zero,(){
-
-            onSuccess();
-          });
-          //Todo: Do Performance testing
-          //  And in research and development branch, implement
-          // another way where crossAxisCount items are rendered and max value calculated, one by one.
-          //Right now everything is happening at once, which is causing high jank on UI,
-          //What if there are many items, my widget might perform bad.
-          return Offstage(
-            child: Flex(
-              direction: axis,
-              children: [
-                for (int i = 0; i < itemList.length; i++)
-                  SizedBox(
-                    height: axis==Axis.horizontal?parentConstrain!.height/crossAxisCount:null,
-                    width: axis==Axis.vertical?parentConstrain!.width/crossAxisCount:null,
-                    child: _renderList[i],
-                  )
-              ],
-            ),
-          );
-        }
-      },
+  Widget renderAndCalculate(CalculatorInput initInput) {
+    _intrinsicMainAxisExtends.clear();
+    return Offstage(
+      child: _RenderingOffsetWidget(
+        initInput: initInput,
+        calculateAndAdd: _calculateAndAdd,
+      ),
     );
   }
 
+  //Todo: Update document
   ///Must call initByRendering Using latest value of serviceList and render the returned value, before calling this method.
   ///
   /// Returns Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
   /// And Second item is max height of second height and so on..
-  Future<List<double>> getOverallMaxHeight() async {
-    await Future.delayed(Duration
-        .zero); //To make sure initRendering had rendered the widgets, and only after rendering below code is run
-    List<double> rowMaxHeightList = [];
-    for (int row = 0; row < _keysList.length; row += crossAxisCount) {
-      double rowMaxHeight = 0;
-      for (int column = 0; column < crossAxisCount; column++) {
-        int overallIndex = row + column;
-        if (overallIndex > _keysList.length - 1) {
-          rowMaxHeightList.add(rowMaxHeight);
-          return rowMaxHeightList;
-        } else {
-          final size = (_keysList[overallIndex]
-                  .currentContext
-                  ?.findRenderObject() as RenderBox)
-              .size;
-          double currentHeight =
-              axis == Axis.vertical ? size.height : size.width;
-          if (currentHeight > rowMaxHeight) {
-            rowMaxHeight = currentHeight;
-          }
-        }
+  Future<void> _calculateAndAdd({
+    required List<GlobalKey> crossAxisKeyList,
+    required Axis axis,
+  }) async {
+    double maxMainAxisExtend = 0;
+    for (var key in crossAxisKeyList) {
+      final size = (key.currentContext?.findRenderObject() as RenderBox).size;
+      double currentMainAxisExtend =
+          axis == Axis.vertical ? size.height : size.width;
+      if (currentMainAxisExtend > maxMainAxisExtend) {
+        maxMainAxisExtend = currentMainAxisExtend;
       }
-
-      rowMaxHeightList.add(rowMaxHeight);
     }
-    return rowMaxHeightList;
+    _intrinsicMainAxisExtends.add(maxMainAxisExtend);
+  }
+}
+
+class _RenderingOffsetWidget extends StatefulWidget {
+  final CalculatorInput initInput;
+  final _CalculateAndAdd calculateAndAdd;
+
+  const _RenderingOffsetWidget({
+    super.key,
+    required this.initInput,
+    required this.calculateAndAdd,
+  });
+
+  @override
+  State<_RenderingOffsetWidget> createState() => _RenderingOffsetWidgetState();
+}
+
+class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
+  Size? parentConstrain;
+  int startIndex = 0;
+  late int maxCrossAxisCount = widget.initInput.itemList.length;
+  late int maxCrossAxisIndex = maxCrossAxisCount - 1;
+
+  List<GlobalKey> _renderingKeyList = [];
+
+  @override
+  Widget build(BuildContext context) {
+    if (parentConstrain == null) {
+      return LayoutBuilder(builder: (context, constrain) {
+        Future.delayed(Duration.zero, () {
+          parentConstrain = Size(constrain.maxWidth, constrain.maxHeight);
+          setState(() {});
+        });
+        return const SizedBox();
+      });
+    } else {
+      var endIndexExcluding = startIndex + widget.initInput.crossAxisItemsCount;
+      if (endIndexExcluding > maxCrossAxisCount) {
+        endIndexExcluding = maxCrossAxisCount;
+      }
+      final renderingList =
+          widget.initInput.itemList.sublist(startIndex, endIndexExcluding);
+      _renderingKeyList = renderingList.map((e) => GlobalKey()).toList();
+      Future.delayed(Duration.zero, () async {
+        await widget.calculateAndAdd(
+          crossAxisKeyList: _renderingKeyList,
+          axis: widget.initInput.axis,
+        );
+        if (startIndex >= maxCrossAxisIndex) {
+          widget.initInput.onSuccess();
+        } else {
+          startIndex += widget.initInput.crossAxisItemsCount;
+          setState(() {});
+        }
+      });
+      return SizedBox(
+        height: widget.initInput.axis == Axis.horizontal
+            ? parentConstrain!.height
+            : null,
+        width: widget.initInput.axis == Axis.vertical
+            ? parentConstrain!.width
+            : null,
+        child: Flex(
+          direction: widget.initInput.axis == Axis.horizontal
+              ? Axis.vertical
+              : Axis.horizontal,
+          children: [
+            for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
+              Builder(
+                builder: (context) {
+                  final element = renderingList.elementAtOrNull(i);
+                  if (element == null) return const Spacer();
+                  return Expanded(
+                    key: _renderingKeyList[i],
+                    child: element,
+                  );
+                },
+              ),
+          ],
+        ),
+      );
+    }
   }
 }

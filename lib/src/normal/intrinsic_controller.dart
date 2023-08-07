@@ -1,11 +1,16 @@
 part of '../widget.dart';
+
 //Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
-  var _beenInitializedOnce=false;//Make completer
-  Axis _axis=Axis.vertical;
-  int _crossAxisCount=0;//0 means not set yet
+  IntrinsicController() : super(true);
+
+  int refreshCount=0;
+  final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
+  bool get _beenInitializedOnce => refreshCount>0; //Todo: Think about making it completer, or may be not
+  Axis _axis = Axis.vertical;
+  int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
 
   ///Returns unmodifiable list, so you cannot update it.
@@ -15,16 +20,11 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
-    _intrinsicHeightCalculator.axis=_axis;
-    _intrinsicHeightCalculator.crossAxisCount=_crossAxisCount;
-    _intrinsicHeightCalculator.itemList = newValue;
+    _newValueCache=[...newValue];//Todo: Three dot performance vs unmodifiable
     super.value = true;
-    super.addListener(() {
-      if (!super.value) {
-        _widgetList = newValue;
-      }
-    });
   }
+
+  List<Widget>? _newValueCache;
 
   //Todo: Make it work, and logic verify
   void _onGridviewConstructed({
@@ -33,66 +33,54 @@ class IntrinsicController extends ValueNotifier<bool> {
     required Axis axis,
     required int crossAxisCount,
   }) {
-    if(!(_beenInitializedOnce && preventRebuild)){
-      _axis=axis;
-      _crossAxisCount=crossAxisCount;
-      //Below must be at last
-      widgetList=[...widgets];//Todo: Should i do it??
+    if (!(_beenInitializedOnce && preventRebuild)) {
+      _axis = axis;
+      _crossAxisCount = crossAxisCount;
+      widgetList=widgets;
     }
   }
 
   //Todo: Currently excluding gap, why??
-  double get getSize => _rowsIntrinsicHeight.fold(
+  double get getSize => _intrinsicMainAxisExtends.fold(
       0, (previousValue, element) => previousValue + element);
 
-  late IntrinsicSizeCalculator _intrinsicHeightCalculator;
 
-  int _refreshCount = 0;
+
 
   IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: _crossAxisCount,
-        crossAxisIntrinsicSize: _rowsIntrinsicHeight,
+        crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
         totalItems: widgetList.length,
-        crossAxisSizeRefresh: _refreshCount,
+        crossAxisSizeRefresh: refreshCount,
       );
-  List<double> _rowsIntrinsicHeight = [];
+  List<double> _intrinsicMainAxisExtends = [];
 
-  bool get isInitialized => _rowsIntrinsicHeight.isNotEmpty;
+  /// Have caching, at first when is in initializing phase, do not display gridview.
+  /// On second time, even if its initializing, display old gridview
+  /// till new gridview data is not loaded.
+  bool get canDisplayGridView => _beenInitializedOnce || !super.value;
 
-  Widget initRendering() {
+  Widget renderAndCalculate() {
     if (!super.value) return const SizedBox();
-    //Todo: Better blockers, below commented blocker was also good.
-    // But previously it didn't worked. Might Future.delayed zero can make it work.
-    // if(_widgetList.isEmpty)return const SizedBox();
-    print("Was here");
-
-    return _intrinsicHeightCalculator.initByRendering(onSuccess: calculateMaxHeight);
-  }
-
-  IntrinsicController() : super(true) {
-    _intrinsicHeightCalculator = IntrinsicSizeCalculator(
-      itemList: widgetList,
-      crossAxisCount: _crossAxisCount,
-      axis: _axis,
+    final toCalculateList=_newValueCache??_widgetList;//Todo: document
+    if(toCalculateList.isEmpty || _crossAxisCount<=0){
+      return const SizedBox();
+    }
+    return _intrinsicHeightCalculator.renderAndCalculate(
+      CalculatorInput(
+          itemList:toCalculateList,
+          crossAxisItemsCount: _crossAxisCount,
+          axis: _axis,
+          onSuccess: () async {
+            _intrinsicMainAxisExtends =
+                _intrinsicHeightCalculator.intrinsicMainAxisExtends;
+            refreshCount++;
+            _widgetList=toCalculateList;
+            super.value=false;
+          }),
     );
   }
 
-  /// Calculate maxHeight in next stack.
-  ///
-  /// Make sure to call initByRendering before it.
-  /// (Or just one stack after it but Synchronous, since this method perform task in next stack)
-  ///
-  /// ->UI Uses Old Cache Max Height List while New Max Height is being calculated <-
-  Future<void> calculateMaxHeight() async {
-    if(_crossAxisCount<=0)return;
-    if (!super.value) return;
-    //Delay to calculate Height in next frame after initRendering is done,
-    // else max height is calculated using old data.
-    await Future.delayed(Duration.zero);
-    _rowsIntrinsicHeight =
-        await _intrinsicHeightCalculator.getOverallMaxHeight();
-    _refreshCount++;
-    super.value = false;
-    _beenInitializedOnce=true;
-  }
+
+
 }
