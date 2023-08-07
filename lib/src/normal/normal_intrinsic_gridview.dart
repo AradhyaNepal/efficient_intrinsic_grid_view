@@ -31,7 +31,12 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                   Expanded(
                     child: GridView.builder(
                       scrollDirection: controller._axis,
-                      gridDelegate: controller.intrinsicRowGridDelegate,
+                      gridDelegate:_NormalDelegate(
+                        crossAxisCount: controller._crossAxisCount,
+                        crossAxisIntrinsicSize: controller._intrinsicMainAxisExtends,
+                        totalItems: controller.widgetList.length,
+                        rebuildCount: controller.refreshCount,
+                      ),
                       reverse: gridViewInput.reverse,
                       controller: gridViewInput.controller,
                       primary: gridViewInput.primary,

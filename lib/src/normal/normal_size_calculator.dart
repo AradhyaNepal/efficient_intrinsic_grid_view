@@ -1,4 +1,8 @@
-import 'package:flutter/material.dart';
+part of '../widget.dart';
+
+
+
+
 
 typedef _CalculateAndAdd = Future<void> Function({
   required List<GlobalKey> crossAxisKeyList,
@@ -13,13 +17,13 @@ typedef _CalculateAndAdd = Future<void> Function({
 ///
 ///
 //Todo: Make it private
-class NormalCalculatorInput {
+class _NormalCalculatorInput {
   final VoidCallback onSuccess;
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
 
-  NormalCalculatorInput({
+  _NormalCalculatorInput({
     required this.onSuccess,
     required this.itemList,
     required this.crossAxisItemsCount,
@@ -27,9 +31,9 @@ class NormalCalculatorInput {
   });
 }
 
-class NormalSizeCalculator {
+class _NormalSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-  NormalSizeCalculator();
+  _NormalSizeCalculator();
 
   final List<double> _intrinsicMainAxisExtends = [];
 
@@ -39,7 +43,7 @@ class NormalSizeCalculator {
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget renderAndCalculate(NormalCalculatorInput initInput) {
+  Widget renderAndCalculate(_NormalCalculatorInput initInput) {
     _intrinsicMainAxisExtends.clear();
     return Offstage(
       child: _RenderingOffsetWidget(
@@ -72,7 +76,7 @@ class NormalSizeCalculator {
 }
 
 class _RenderingOffsetWidget extends StatefulWidget {
-  final NormalCalculatorInput initInput;
+  final _NormalCalculatorInput initInput;
   final _CalculateAndAdd calculateAndAdd;
 
   const _RenderingOffsetWidget({

@@ -1,16 +1,12 @@
-import 'dart:math' as math;
-import 'package:flutter/rendering.dart';
+part of '../widget.dart';
 
-//Todo: Make it for horizontal scrolling too
-///Only use it for Vertical Scrolling.
-///
-///We can provide different height of each cross Axis using this Delegate
-class NormalDelegate extends SliverGridDelegate {
-  const NormalDelegate({
+
+class _NormalDelegate extends SliverGridDelegate {
+  const _NormalDelegate({
     required this.crossAxisCount,
     required this.crossAxisIntrinsicSize,
     required this.totalItems,
-    required this.crossAxisSizeRefresh,
+    required this.rebuildCount,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
   }) : assert(crossAxisCount > 0),
@@ -18,16 +14,20 @@ class NormalDelegate extends SliverGridDelegate {
         assert(crossAxisSpacing >= 0);
 
 
-  //Todo: Copy paste official
-  //See flutter official docs to understand below variable
+  /// The number of children in the cross axis.
   final int crossAxisCount;
+
+  /// The number of logical pixels between each child along the main axis.
   final double mainAxisSpacing;
+
+  /// The number of logical pixels between each child along the cross axis.
   final double crossAxisSpacing;
 
-  ///Used to track if we need to rebuild the gridview
-  final int crossAxisSizeRefresh;
+
   final int totalItems;
 
+  ///Used to track if we need to rebuild the gridview
+  final int rebuildCount;
   /// Overall max size of cross axis accordingly, Eg: If there is 2 item in the list, first item is max size of first crossAxis
   /// And Second item is max size of second crossAxis and so on..
   final List<double> crossAxisIntrinsicSize;
@@ -47,35 +47,33 @@ class NormalDelegate extends SliverGridDelegate {
       constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1),
     );
     final double childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-    return IntrinsicCrossAxisTileLayout(
+    return _IntrinsicCrossAxisTileLayout(
       crossAxisCount: crossAxisCount,
       crossAxisIntrinsicSize: crossAxisIntrinsicSize,
       crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
       childCrossAxisExtent: childCrossAxisExtent,
-      reverseCrossAxis: false,
       mainAxisSpacing: mainAxisSpacing,
       totalItems: totalItems,
     );
   }
 
   @override
-  bool shouldRelayout(NormalDelegate oldDelegate) {
+  bool shouldRelayout(_NormalDelegate oldDelegate) {
     return oldDelegate.crossAxisCount != crossAxisCount
         || oldDelegate.mainAxisSpacing != mainAxisSpacing
         || oldDelegate.crossAxisSpacing != crossAxisSpacing
-        || oldDelegate.crossAxisSizeRefresh!=crossAxisSizeRefresh;
+        || oldDelegate.rebuildCount!=rebuildCount;
   }
 }
 
 
 
 
-class IntrinsicCrossAxisTileLayout extends SliverGridLayout {
-  const IntrinsicCrossAxisTileLayout({
+class _IntrinsicCrossAxisTileLayout extends SliverGridLayout {
+  const _IntrinsicCrossAxisTileLayout({
     required this.crossAxisCount,
     required this.crossAxisStride,
     required this.childCrossAxisExtent,
-    required this.reverseCrossAxis,
     required this.crossAxisIntrinsicSize,
     required this.mainAxisSpacing,
     required this.totalItems,
@@ -84,11 +82,16 @@ class IntrinsicCrossAxisTileLayout extends SliverGridLayout {
         assert(childCrossAxisExtent >= 0);
 
 
-  //See flutter official docs to understand below variable
+
   final int crossAxisCount;
   final double mainAxisSpacing;
+  /// The number of pixels from the leading edge of one tile to the trailing
+  /// edge of the same tile in the cross axis.
   final double childCrossAxisExtent;
-  final bool reverseCrossAxis;
+
+
+  /// The number of pixels from the leading edge of one tile to the leading edge
+  /// of the next tile in the cross axis.
   final double crossAxisStride;
 
   /// Overall max size of crossAxis accordingly, Eg: If there is 2 item in the list, first item is max size of first cross axis
@@ -141,12 +144,10 @@ class IntrinsicCrossAxisTileLayout extends SliverGridLayout {
     return endItems-1;//No idea why its -1, but even in package its - 1. Without it last one value is not showing
   }
 
-  ///Excluding Gap
-  //Todo: Why excluding Gap
   double get _totalMainAxisItemSize => crossAxisIntrinsicSize.fold(0.0, (previousValue, element) => previousValue+element);
 
 
-  //See official flutter docs
+  /// The size and position of the child with the given index.
   @override
   SliverGridGeometry getGeometryForChildIndex(int index) {
     int crossAxisIndex=index~/crossAxisCount;
@@ -173,7 +174,7 @@ class IntrinsicCrossAxisTileLayout extends SliverGridLayout {
     }
   }
 
-  ///Total intrinsic height of the Gridview,
+  ///Total calculated mainAxisSize of the Gridview,
   ///counts from top to bottom even if its not rendered.
   ///
   /// Includes size of all cross axis in the grid view plus the middle padding/spacing between them.

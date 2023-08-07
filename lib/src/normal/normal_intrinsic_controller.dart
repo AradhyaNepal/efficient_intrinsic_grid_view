@@ -7,8 +7,8 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
   NormalIntrinsicController() : super(false);
 
   int refreshCount=0;
-  final _intrinsicHeightCalculator= NormalSizeCalculator();
-  bool get _beenInitializedOnce => refreshCount>0; //Todo: Think about making it completer, or may be not
+  final _intrinsicHeightCalculator= _NormalSizeCalculator();
+  bool get _beenInitializedOnce => refreshCount>0;
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
@@ -23,7 +23,7 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
   ///If is loading than this will not run.
   set widgetList(List<Widget> newValue) {
     if(super.value)return;
-    _newValueCache=[...newValue];//Todo: Three dot performance vs unmodifiable
+    _newValueCache=[...newValue];
     super.value = true;
   }
 
@@ -48,14 +48,6 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
       0, (previousValue, element) => previousValue + element);
 
 
-
-
-  NormalDelegate get intrinsicRowGridDelegate => NormalDelegate(
-        crossAxisCount: _crossAxisCount,
-        crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
-        totalItems: widgetList.length,
-        crossAxisSizeRefresh: refreshCount,
-      );
   List<double> _intrinsicMainAxisExtends = [];
 
   /// Have caching, at first when is in initializing phase, do not display gridview.
@@ -70,7 +62,7 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
       return const SizedBox();
     }
     return _intrinsicHeightCalculator.renderAndCalculate(
-      NormalCalculatorInput(
+      _NormalCalculatorInput(
           itemList:toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,

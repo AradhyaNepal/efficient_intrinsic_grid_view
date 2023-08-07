@@ -1,20 +1,30 @@
+library efficient_intrinsic_gridview;
+
 import 'package:efficient_intrinsic_gridview/src/builder/builder_size_calculator.dart';
 import 'package:efficient_intrinsic_gridview/src/builder/intrinsic_delegate.dart';
 import 'package:efficient_intrinsic_gridview/src/comman/utils.dart';
 import 'package:efficient_intrinsic_gridview/src/comman/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
-import '../efficient_intrinsic_gridview.dart';
+import 'package:flutter/rendering.dart';
+import 'dart:math' as math;
 import 'comman/grid_input.dart';
 
 part 'shrink_wrap/grid_using_column_row.dart';
 
 part 'normal/normal_intrinsic_gridview.dart';
 
-part 'builder/builder_intrinsic_gridview.dart';
+part 'normal/normal_size_calculator.dart';
+
+part 'normal/normal_delegate.dart';
 
 part 'normal/normal_intrinsic_controller.dart';
 
+part 'builder/builder_intrinsic_gridview.dart';
+
+
 part 'builder/builder_intrinsic_controller.dart';
+
+
 
 /// A GridView which allow every crossAxis to have its own intrinsic size(mainAxisExtend), i.e.
 /// its own intrinsic height for vertical scrolling or its own intrinsic width for horizontal scrolling.
