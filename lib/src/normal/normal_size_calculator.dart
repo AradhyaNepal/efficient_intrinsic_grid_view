@@ -13,13 +13,13 @@ typedef _CalculateAndAdd = Future<void> Function({
 ///
 ///
 //Todo: Make it private
-class CalculatorInput {
+class NormalCalculatorInput {
   final VoidCallback onSuccess;
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
 
-  CalculatorInput({
+  NormalCalculatorInput({
     required this.onSuccess,
     required this.itemList,
     required this.crossAxisItemsCount,
@@ -27,9 +27,9 @@ class CalculatorInput {
   });
 }
 
-class IntrinsicSizeCalculator {
+class NormalSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-  IntrinsicSizeCalculator();
+  NormalSizeCalculator();
 
   final List<double> _intrinsicMainAxisExtends = [];
 
@@ -39,7 +39,7 @@ class IntrinsicSizeCalculator {
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget renderAndCalculate(CalculatorInput initInput) {
+  Widget renderAndCalculate(NormalCalculatorInput initInput) {
     _intrinsicMainAxisExtends.clear();
     return Offstage(
       child: _RenderingOffsetWidget(
@@ -72,7 +72,7 @@ class IntrinsicSizeCalculator {
 }
 
 class _RenderingOffsetWidget extends StatefulWidget {
-  final CalculatorInput initInput;
+  final NormalCalculatorInput initInput;
   final _CalculateAndAdd calculateAndAdd;
 
   const _RenderingOffsetWidget({

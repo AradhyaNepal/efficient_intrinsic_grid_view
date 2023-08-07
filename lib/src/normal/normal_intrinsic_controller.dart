@@ -3,11 +3,11 @@ part of '../widget.dart';
 //Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
-class IntrinsicController extends ValueNotifier<bool> {
-  IntrinsicController() : super(false);
+class NormalIntrinsicController extends ValueNotifier<bool> {
+  NormalIntrinsicController() : super(false);
 
   int refreshCount=0;
-  final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
+  final _intrinsicHeightCalculator= NormalSizeCalculator();
   bool get _beenInitializedOnce => refreshCount>0; //Todo: Think about making it completer, or may be not
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
@@ -50,7 +50,7 @@ class IntrinsicController extends ValueNotifier<bool> {
 
 
 
-  IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
+  NormalDelegate get intrinsicRowGridDelegate => NormalDelegate(
         crossAxisCount: _crossAxisCount,
         crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
         totalItems: widgetList.length,
@@ -70,7 +70,7 @@ class IntrinsicController extends ValueNotifier<bool> {
       return const SizedBox();
     }
     return _intrinsicHeightCalculator.renderAndCalculate(
-      CalculatorInput(
+      NormalCalculatorInput(
           itemList:toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,

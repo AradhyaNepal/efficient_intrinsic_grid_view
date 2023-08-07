@@ -9,14 +9,14 @@ class ControllerInheritedWidget extends InheritedWidget {
   });
 
 
-  final IntrinsicController controller;
+  final NormalIntrinsicController controller;
 
   static ControllerInheritedWidget? maybeOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<ControllerInheritedWidget>();
   }
 
-  static IntrinsicController getController(BuildContext context) {
+  static NormalIntrinsicController getController(BuildContext context) {
     final ControllerInheritedWidget? result = maybeOf(context);
     assert(result != null, 'No Controller Found');
     return result!.controller;

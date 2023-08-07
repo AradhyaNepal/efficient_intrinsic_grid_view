@@ -13,14 +13,14 @@ typedef _CalculateAndAdd = Future<void> Function({
 ///
 ///
 //Todo: Make it private
-class CalculatorInput {
+class BuilderCalculatorInput {
   final VoidCallback onSuccess;
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
   final ValueNotifier<int> currentIndexNotifier;
 
-  CalculatorInput({
+  BuilderCalculatorInput({
     required this.onSuccess,
     required this.itemList,
     required this.crossAxisItemsCount,
@@ -29,20 +29,20 @@ class CalculatorInput {
   });
 }
 
-class IntrinsicSizeCalculator {
+class BuilderSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
-  IntrinsicSizeCalculator();
+  BuilderSizeCalculator();
 
   List<double?> _intrinsicMainAxisExtends = [];
 
   ///Unmodifiable list, do not try to modify it.
   //Todo: May be only do it on controller, not here.
   //Or maybe not, do it here only
-  List<double?> get intrinsicMainAxisExtends =>List.unmodifiable(_intrinsicMainAxisExtends);
+  List<double> get intrinsicMainAxisExtends =>List.unmodifiable(_intrinsicMainAxisExtends);
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget lazySizeCalculator(CalculatorInput initInput) {
+  Widget lazySizeCalculator(BuilderCalculatorInput initInput) {
     _intrinsicMainAxisExtends=initInput.itemList.map((e) => null).toList();
     return Offstage(
       child: _RenderingOffsetWidget(
@@ -75,7 +75,7 @@ class IntrinsicSizeCalculator {
 }
 
 class _RenderingOffsetWidget extends StatefulWidget {
-  final CalculatorInput initInput;
+  final BuilderCalculatorInput initInput;
   final _CalculateAndAdd calculateAndAdd;
 
   const _RenderingOffsetWidget({

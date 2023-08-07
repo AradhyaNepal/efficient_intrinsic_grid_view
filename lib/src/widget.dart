@@ -1,5 +1,7 @@
+import 'package:efficient_intrinsic_gridview/src/builder/builder_size_calculator.dart';
+import 'package:efficient_intrinsic_gridview/src/builder/intrinsic_delegate.dart';
 import 'package:efficient_intrinsic_gridview/src/comman/utils.dart';
-import 'package:efficient_intrinsic_gridview/src/normal/controller_inherited_widget.dart';
+import 'package:efficient_intrinsic_gridview/src/comman/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import '../efficient_intrinsic_gridview.dart';
 import 'comman/grid_input.dart';
@@ -10,7 +12,9 @@ part 'normal/normal_intrinsic_gridview.dart';
 
 part 'builder/builder_intrinsic_gridview.dart';
 
-part 'normal/intrinsic_controller.dart';
+part 'normal/normal_intrinsic_controller.dart';
+
+part 'builder/builder_intrinsic_controller.dart';
 
 /// A GridView which allow every crossAxis to have its own intrinsic size(mainAxisExtend), i.e.
 /// its own intrinsic height for vertical scrolling or its own intrinsic width for horizontal scrolling.
@@ -49,7 +53,7 @@ part 'normal/intrinsic_controller.dart';
 /// That's why don't use [EfficientIntrinsicGridView.shrinkWrap], its inefficient.
 ///
 /// Regarding has infinite size, I personally hate using shrinkWrap true on [GridView].
-/// So either set use proper sizing of the widgets or from [IntrinsicController]
+/// So either set use proper sizing of the widgets or from [NormalIntrinsicController]
 /// you can access total calculated size of the [EfficientIntrinsicGridView],
 /// or my favorite way is to use [CustomScrollView].
 ///
@@ -76,7 +80,7 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
   factory EfficientIntrinsicGridView({
     Key? key,
     required List<Widget> children,
-    required IntrinsicController intrinsicController,
+    required NormalIntrinsicController intrinsicController,
     bool preventRebuild=true, //Todo: For few milliseconds, on HotRestart we are getting RenderFlex Overflow
     GridViewInput? gridViewInput,
     bool preventOverflow = false,//Todo: This needs to scroll gridview to work. Why?? should i solve it?? or just put on docs??
@@ -102,7 +106,7 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
 
   factory EfficientIntrinsicGridView.builder({
     Key? key,
-    required IntrinsicController controller,
+    required NormalIntrinsicController controller,
     GridViewInput? gridViewInput,
     bool preventOverflow = false,
   }) =>

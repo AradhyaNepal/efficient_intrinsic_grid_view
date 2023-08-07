@@ -1,7 +1,7 @@
 part of '../widget.dart';
 
 class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
-  final IntrinsicController controller;
+  final NormalIntrinsicController controller;
 
   ///Wraps widget with extra SingleChildScrollView to prevent overflow
   ///It is used when a stateful widget is passed inside the items, and the size of the widget might change as user interact

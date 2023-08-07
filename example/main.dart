@@ -13,7 +13,7 @@ class VerticalGridViewExample extends StatefulWidget {
 }
 
 class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
-  final controller = IntrinsicController();
+  final controller = NormalIntrinsicController();
 
   @override
   void dispose() {
@@ -116,7 +116,7 @@ class HorizontalGridViewExample extends StatefulWidget {
 }
 
 class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
-  final controller=IntrinsicController();
+  final controller=NormalIntrinsicController();
   @override
   void dispose() {
     controller.dispose();
