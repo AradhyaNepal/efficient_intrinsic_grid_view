@@ -4,7 +4,7 @@ part of '../widget.dart';
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
 class IntrinsicController extends ValueNotifier<bool> {
-  IntrinsicController() : super(true);
+  IntrinsicController() : super(false);
 
   int refreshCount=0;
   final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
@@ -19,7 +19,10 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
+  ///
+  ///If is loading than this will not run.
   set widgetList(List<Widget> newValue) {
+    if(super.value)return;
     _newValueCache=[...newValue];//Todo: Three dot performance vs unmodifiable
     super.value = true;
   }

@@ -26,12 +26,20 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            onPressed: () {
-              controller.widgetList =
-              controller.widgetList.map((e) => e).toList()..shuffle();
-            },
-            icon: const Icon(Icons.refresh),
+          ValueListenableBuilder(
+            valueListenable: controller,
+            builder: (context,loading,child) {
+              if(loading){
+                return const CircularProgressIndicator();
+              }
+              return IconButton(
+                onPressed: () {
+                  controller.widgetList =
+                  controller.widgetList.map((e) => e).toList()..shuffle();
+                },
+                icon: const Icon(Icons.refresh),
+              );
+            }
           ),
         ],
       ),
@@ -41,7 +49,7 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
         intrinsicController: controller,
         crossAxisCount: 2,
         children: [
-          for (int i = 0; i < 1000; i++)
+          for (int i = 0; i < 100; i++)
             Container(
               decoration: BoxDecoration(
                   border: Border.all(

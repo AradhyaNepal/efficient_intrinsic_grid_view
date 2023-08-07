@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:efficient_intrinsic_gridview/src/comman/utils.dart';
 import 'package:efficient_intrinsic_gridview/src/normal/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
