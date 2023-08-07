@@ -29,7 +29,7 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
           IconButton(
             onPressed: () {
               controller.widgetList =
-                  controller.widgetList.map((e) => e).toList()..shuffle();
+              controller.widgetList.map((e) => e).toList()..shuffle();
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -37,23 +37,22 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
       ),
       body: EfficientIntrinsicGridView(
         preventOverflow: false,
-        preventRebuild: false,
-
+        preventRebuild: true,
         intrinsicController: controller,
         crossAxisCount: 2,
 
         children: [
-          for (int i = 0; i < 20; i++)
+          for (int i = 0; i < 100; i++)
             Container(
               decoration: BoxDecoration(
                   border: Border.all(
-                color: Colors.blue,
-                width: 5,
-              )),
+                    color: Colors.blue,
+                    width: 5,
+                  )),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int j = 0; j < i+1; j++)
+                  for (int j = 0; j < (i%10)+1; j++)
                     _VerticalItem(
                       itemCount: j,
                       index: i,
@@ -121,7 +120,6 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
   void dispose() {
     controller.dispose();
     super.dispose();
-
   }
   @override
   Widget build(BuildContext context) {
@@ -140,7 +138,7 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
       body: EfficientIntrinsicGridView(
         scrollDirection: Axis.horizontal,
         preventRebuild: false,
-        crossAxisCount: 2,
+        crossAxisCount: 3,
         intrinsicController:controller ,
         children: [
           for (int i = 0; i < 20; i++)
@@ -152,7 +150,7 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
                   )),
               child: Row(
                 children: [
-                  for (int j = 0; j < i+1; j++)
+                  for (int j = 0; j < i + 1; j++)
                     _HorizontalItem(itemCount: j,index: i,)
                 ],
               ),

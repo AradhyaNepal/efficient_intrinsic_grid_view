@@ -88,10 +88,11 @@ class _RenderingOffsetWidget extends StatefulWidget {
 class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
   Size? parentConstrain;
   int startIndex = 0;
-  late int maxCrossAxisCount =  widget.initInput.itemList.length;
+  late int maxCrossAxisCount = widget.initInput.itemList.length;
   late int maxCrossAxisIndex = maxCrossAxisCount - 1;
 
   List<GlobalKey> _renderingKeyList = [];
+  var _calculatedValueBuffer = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +105,6 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         return const SizedBox();
       });
     } else {
-
       var endIndexExcluding = startIndex + widget.initInput.crossAxisItemsCount;
       if (endIndexExcluding > maxCrossAxisCount) {
         endIndexExcluding = maxCrossAxisCount;
@@ -121,6 +121,7 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
           widget.initInput.onSuccess();
         } else {
           startIndex += widget.initInput.crossAxisItemsCount;
+          _calculatedValueBuffer++;
           setState(() {});
         }
       });
