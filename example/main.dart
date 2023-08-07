@@ -37,12 +37,13 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
       ),
       body: EfficientIntrinsicGridView(
         preventOverflow: false,
-        preventRebuild: true,
+        preventRebuild: false,
+
         intrinsicController: controller,
         crossAxisCount: 2,
 
         children: [
-          for (int i = 0; i < 50; i++)
+          for (int i = 0; i < 20; i++)
             Container(
               decoration: BoxDecoration(
                   border: Border.all(
@@ -52,7 +53,7 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int j = 0; j < (i + 1)%10+1; j++)
+                  for (int j = 0; j < i+1; j++)
                     _VerticalItem(
                       itemCount: j,
                       index: i,
@@ -120,6 +121,7 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
   void dispose() {
     controller.dispose();
     super.dispose();
+
   }
   @override
   Widget build(BuildContext context) {
@@ -138,7 +140,7 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
       body: EfficientIntrinsicGridView(
         scrollDirection: Axis.horizontal,
         preventRebuild: false,
-        crossAxisCount: 3,
+        crossAxisCount: 2,
         intrinsicController:controller ,
         children: [
           for (int i = 0; i < 20; i++)
@@ -150,7 +152,7 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
                   )),
               child: Row(
                 children: [
-                  for (int j = 0; j < i + 1; j++)
+                  for (int j = 0; j < i+1; j++)
                     _HorizontalItem(itemCount: j,index: i,)
                 ],
               ),
