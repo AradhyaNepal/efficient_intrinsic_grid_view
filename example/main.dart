@@ -41,7 +41,7 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
         intrinsicController: controller,
         crossAxisCount: 2,
         children: [
-          for (int i = 0; i < 20; i++)
+          for (int i = 0; i < 50; i++)
             Container(
               decoration: BoxDecoration(
                   border: Border.all(
@@ -51,7 +51,7 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int j = 0; j < i + 1; j++)
+                  for (int j = 0; j < (i + 1)%10+1; j++)
                     _VerticalItem(
                       itemCount: j,
                       index: i,

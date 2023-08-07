@@ -88,7 +88,8 @@ class _RenderingOffsetWidget extends StatefulWidget {
 class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
   Size? parentConstrain;
   int startIndex = 0;
-  late int maxCrossAxisIndex = widget.initInput.itemList.length - 1;
+  late int maxCrossAxisCount =  widget.initInput.itemList.length;
+  late int maxCrossAxisIndex = maxCrossAxisCount - 1;
 
   List<GlobalKey> _renderingKeyList = [];
 
@@ -103,14 +104,14 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         return const SizedBox();
       });
     } else {
-      var endIndex = startIndex + widget.initInput.crossAxisItemsCount;
-      if (endIndex > maxCrossAxisIndex) {
-        endIndex = maxCrossAxisIndex;
+
+      var endIndexExcluding = startIndex + widget.initInput.crossAxisItemsCount;
+      if (endIndexExcluding > maxCrossAxisCount) {
+        endIndexExcluding = maxCrossAxisCount;
       }
       final renderingList =
-          widget.initInput.itemList.sublist(startIndex, endIndex + 1);
+          widget.initInput.itemList.sublist(startIndex, endIndexExcluding);
       _renderingKeyList = renderingList.map((e) => GlobalKey()).toList();
-
       Future.delayed(Duration.zero, () async {
         await widget.calculateAndAdd(
           crossAxisKeyList: _renderingKeyList,
@@ -135,7 +136,7 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
               ? Axis.vertical
               : Axis.horizontal,
           children: [
-            for (int i = 0; i <= widget.initInput.crossAxisItemsCount; i++)
+            for (int i = 0; i < widget.initInput.crossAxisItemsCount; i++)
               Builder(
                 builder: (context) {
                   final element = renderingList.elementAtOrNull(i);

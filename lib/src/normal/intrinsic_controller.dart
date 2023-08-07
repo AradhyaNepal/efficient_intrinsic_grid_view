@@ -8,7 +8,7 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   int refreshCount=0;
   final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
-  var _beenInitializedOnce = false; //Make completer
+  bool get _beenInitializedOnce => refreshCount>0; //Todo: Think about making it completer, or may be not
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
@@ -22,8 +22,12 @@ class IntrinsicController extends ValueNotifier<bool> {
   set widgetList(List<Widget> newValue) {
     super.value = true;
     super.addListener(() {//Todo: What about removing the listener because in next change too this lister is being called, concurrency
+      print("Called12345");
+
+
+
       if (!super.value) {
-        _widgetList = newValue;
+        _widgetList = [...newValue];
       }
     });
   }
@@ -65,6 +69,9 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   Widget renderAndCalculate() {
     if (!super.value) return const SizedBox();
+    print("was called");
+
+
     if(_widgetList.isEmpty || _crossAxisCount<=0){
       return const SizedBox();
     }
@@ -76,7 +83,6 @@ class IntrinsicController extends ValueNotifier<bool> {
           onSuccess: () async {
             _intrinsicMainAxisExtends =
                 _intrinsicHeightCalculator.intrinsicMainAxisExtends;
-            _beenInitializedOnce = true;
             refreshCount++;
             super.value=false;
           }),
