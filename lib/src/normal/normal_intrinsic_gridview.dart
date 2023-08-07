@@ -18,20 +18,20 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
 
   @override
   Widget build(BuildContext context) {
-    // if(controller._widgetList.isEmpty)return const SizedBox();
     return ControllerInheritedWidget(
       controller: controller,
       child: ValueListenableBuilder(
           valueListenable: controller,
+          child: controller._lazySizeCalculator(),
           builder: (context, isLoading, child) {
             return Column(
               children: [
-                if (controller.value) controller.renderAndCalculate(),
+                child ?? const SizedBox(),
                 if (controller.canDisplayGridView)
                   Expanded(
                     child: GridView.builder(
                       scrollDirection: controller._axis,
-                      gridDelegate: controller.intrinsicRowGridDelegate,
+                      gridDelegate: controller._intrinsicRowGridDelegate,
                       reverse: gridViewInput.reverse,
                       controller: gridViewInput.controller,
                       primary: gridViewInput.primary,
@@ -51,15 +51,17 @@ class _NormalIntrinsicGridView extends EfficientIntrinsicGridView {
                       restorationId: gridViewInput.restorationId,
                       clipBehavior: gridViewInput.clipBehavior,
                       itemBuilder: (context, index) {
-                        final child = controller.widgetList[index];
-                        if (preventOverflow) {
-                          return SingleChildScrollView(
-                            scrollDirection: controller._axis,
-                            child: child,
-                          );
-                        } else {
-                          return child;
-                        }
+                        return controller.renderOrCalculateSize(index, () {
+                          final child = controller.widgetList[index];
+                          if (preventOverflow) {
+                            return SingleChildScrollView(
+                              scrollDirection: controller._axis,
+                              child: child,
+                            );
+                          } else {
+                            return child;
+                          }
+                        });
                       },
                       itemCount: controller.widgetList.length,
                     ),

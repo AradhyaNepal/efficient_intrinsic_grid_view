@@ -3,15 +3,20 @@ part of '../widget.dart';
 //Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
 //Todo: Variable refactor to denote both horizontal and vertical scrolling
-class IntrinsicController extends ValueNotifier<bool> {
-  IntrinsicController() : super(true);
+class IntrinsicController extends ValueNotifier<int> {
+  IntrinsicController() : super(0);
 
-  int refreshCount=0;
-  final _intrinsicHeightCalculator= IntrinsicSizeCalculator();
-  bool get _beenInitializedOnce => refreshCount>0; //Todo: Think about making it completer, or may be not
+  final _intrinsicHeightCalculator = IntrinsicSizeCalculator();
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
+
+  bool _canDisplayGridView = false;
+
+  /// Have caching, at first when is in calculation phase, do not display gridview.
+  /// On second time, even if its calculating new data, display old gridview
+  /// till new gridview data is not loaded.
+  bool get canDisplayGridView => _canDisplayGridView;
 
   ///Returns unmodifiable list, so you cannot update it.
   ///If you want to update it, you have to use the setter method
@@ -20,8 +25,10 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
-    _newValueCache=[...newValue];//Todo: Three dot performance vs unmodifiable
-    super.value = true;
+    _newValueCache = [
+      ...newValue
+    ]; //Todo: Three dot performance vs unmodifiable
+    value = value++;
   }
 
   List<Widget>? _newValueCache;
@@ -33,54 +40,58 @@ class IntrinsicController extends ValueNotifier<bool> {
     required Axis axis,
     required int crossAxisCount,
   }) {
-    if (!(_beenInitializedOnce && preventRebuild)) {
+    if (!(preventRebuild)) {
       _axis = axis;
       _crossAxisCount = crossAxisCount;
-      widgetList=widgets;
+      widgetList = widgets;
     }
   }
+
+  final _currentIndexNotifier = ValueNotifier(0);
 
   //Todo: Currently excluding gap, why??
   double get getSize => _intrinsicMainAxisExtends.fold(
       0, (previousValue, element) => previousValue + element);
 
+  Widget renderOrCalculateSize(int index, Widget Function() childBuilder) {
+    _currentIndexNotifier.value=index;
+    return childBuilder();
+  }
 
-
-
-  IntrinsicDelegate get intrinsicRowGridDelegate => IntrinsicDelegate(
+  IntrinsicDelegate get _intrinsicRowGridDelegate => IntrinsicDelegate(
         crossAxisCount: _crossAxisCount,
         crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
         totalItems: widgetList.length,
-        crossAxisSizeRefresh: refreshCount,
+        crossAxisSizeRefresh: value,
       );
   List<double> _intrinsicMainAxisExtends = [];
 
-  /// Have caching, at first when is in initializing phase, do not display gridview.
-  /// On second time, even if its initializing, display old gridview
-  /// till new gridview data is not loaded.
-  bool get canDisplayGridView => _beenInitializedOnce || !super.value;
-
-  Widget renderAndCalculate() {
-    if (!super.value) return const SizedBox();
-    final toCalculateList=_newValueCache??_widgetList;//Todo: document
-    if(toCalculateList.isEmpty || _crossAxisCount<=0){
+  ///Needs to render the widget returned by this calculator to make it work.
+  ///And refresh must not rerun this method
+  //Todo: Whether refresh should not rerun this method or maybe it can rerun??
+  Widget _lazySizeCalculator() {
+    final toCalculateList = _newValueCache ?? _widgetList; //Todo: document
+    if (toCalculateList.isEmpty || _crossAxisCount <= 0) {
       return const SizedBox();
     }
-    return _intrinsicHeightCalculator.renderAndCalculate(
+    return _intrinsicHeightCalculator.lazySizeCalculator(
       CalculatorInput(
-          itemList:toCalculateList,
+          currentIndexNotifier: _currentIndexNotifier,
+          itemList: toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,
           onSuccess: () async {
             _intrinsicMainAxisExtends =
                 _intrinsicHeightCalculator.intrinsicMainAxisExtends;
-            refreshCount++;
-            _widgetList=toCalculateList;
-            super.value=false;
+            _widgetList = toCalculateList;
+            _canDisplayGridView = true;
           }),
     );
   }
 
-
-
+  @override
+  void dispose() {
+    _currentIndexNotifier.dispose();
+    super.dispose();
+  }
 }

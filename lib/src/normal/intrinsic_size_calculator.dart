@@ -18,12 +18,14 @@ class CalculatorInput {
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
+  final ValueNotifier<int> currentIndexNotifier;
 
   CalculatorInput({
     required this.onSuccess,
     required this.itemList,
     required this.crossAxisItemsCount,
     required this.axis,
+    required this.currentIndexNotifier,
   });
 }
 
@@ -31,16 +33,17 @@ class IntrinsicSizeCalculator {
   ///At first must call initByRendering and must render that widget somewhere in the widget tree. (That rendered widget is invisible, only used for calculating height)
   IntrinsicSizeCalculator();
 
-  final List<double> _intrinsicMainAxisExtends = [];
+  List<double?> _intrinsicMainAxisExtends = [];
 
   ///Unmodifiable list, do not try to modify it.
-  List<double> get intrinsicMainAxisExtends =>
-      List.unmodifiable(_intrinsicMainAxisExtends);
+  //Todo: May be only do it on controller, not here.
+  //Or maybe not, do it here only
+  List<double?> get intrinsicMainAxisExtends =>List.unmodifiable(_intrinsicMainAxisExtends);
 
   ///To render the item in the widget tree, so that using keys of that items we can calculate max height.
   ///Items are hidden, since we have used Offstage widget
-  Widget renderAndCalculate(CalculatorInput initInput) {
-    _intrinsicMainAxisExtends.clear();
+  Widget lazySizeCalculator(CalculatorInput initInput) {
+    _intrinsicMainAxisExtends=initInput.itemList.map((e) => null).toList();
     return Offstage(
       child: _RenderingOffsetWidget(
         initInput: initInput,
@@ -50,7 +53,7 @@ class IntrinsicSizeCalculator {
   }
 
   //Todo: Update document
-  ///Must call initByRendering Using latest value of serviceList and render the returned value, before calling this method.
+  ///Must call initByRendering Using latest value of widget and render the returned value, before calling this method.
   ///
   /// Returns Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
   /// And Second item is max height of second height and so on..
@@ -88,10 +91,23 @@ class _RenderingOffsetWidget extends StatefulWidget {
 class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
   Size? parentConstrain;
   int startIndex = 0;
-  late int maxCrossAxisCount =  widget.initInput.itemList.length;
+  late int maxCrossAxisCount = widget.initInput.itemList.length;
   late int maxCrossAxisIndex = maxCrossAxisCount - 1;
 
   List<GlobalKey> _renderingKeyList = [];
+
+  @override
+  void initState() {
+    widget.initInput.currentIndexNotifier.addListener(_indexChangeListener);
+    super.initState();
+  }
+
+  final _indexChangeListener = () {
+
+  };
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +120,6 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         return const SizedBox();
       });
     } else {
-
       var endIndexExcluding = startIndex + widget.initInput.crossAxisItemsCount;
       if (endIndexExcluding > maxCrossAxisCount) {
         endIndexExcluding = maxCrossAxisCount;
@@ -151,5 +166,11 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    widget.initInput.currentIndexNotifier.removeListener(_indexChangeListener);
+    super.dispose();
   }
 }
