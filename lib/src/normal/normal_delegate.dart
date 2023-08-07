@@ -180,6 +180,7 @@ class _IntrinsicCrossAxisTileLayout extends SliverGridLayout {
   /// Includes size of all cross axis in the grid view plus the middle padding/spacing between them.
   @override
   double computeMaxScrollOffset(int childCount) {
+    //Todo: Compare your logic with official and test
     final double totalMainAxisGapSize=mainAxisSpacing*(childCount~/crossAxisCount);
     return _totalMainAxisItemSize+totalMainAxisGapSize;
   }

@@ -1,14 +1,16 @@
 part of '../../widget.dart';
 
-//Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
-//What if concurrency(Although its Sync), and what about user modifying these value themself.
-//Todo: Variable refactor to denote both horizontal and vertical scrolling
+
 class NormalIntrinsicController extends ValueNotifier<bool> {
+
+
   NormalIntrinsicController() : super(false);
 
-  int refreshCount=0;
-  final _intrinsicHeightCalculator= _NormalSizeCalculator();
-  bool get _beenInitializedOnce => refreshCount>0;
+  double _mainAxisSpacing=0;
+  double _crossAxisSpacing=0;
+  int _refreshCount=0;
+  final _normalSizeCalculator= _NormalSizeCalculator();
+  bool get _beenInitializedOnce => _refreshCount>0;
   Axis _axis = Axis.vertical;
   int _crossAxisCount = 0; //0 means not set yet
   List<Widget> _widgetList = [];
@@ -18,9 +20,9 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
   List<Widget> get widgetList => List.unmodifiable(_widgetList);
 
   ///On Value updated, widgets get rebuild,
-  ///and intrinsic height are recalculated
+  ///and new intrinsic maxAxisExtend are calculated
   ///
-  ///If is loading than this will not run.
+  ///Note: If value is already being calculated, then this method will not run
   set widgetList(List<Widget> newValue) {
     if(super.value)return;
     _newValueCache=[...newValue];
@@ -29,24 +31,48 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
 
   List<Widget>? _newValueCache;
 
-  //Todo: Make it work, and logic verify
   void _onGridviewConstructed({
     required bool preventRebuild,
     required List<Widget> widgets,
     required Axis axis,
     required int crossAxisCount,
+    required double mainAxisSpacing,
+    required double crossAxisSpacing,
   }) {
     if (!(_beenInitializedOnce && preventRebuild)) {
       _axis = axis;
       _crossAxisCount = crossAxisCount;
       widgetList=widgets;
+      _mainAxisSpacing=mainAxisSpacing;
+      _crossAxisSpacing=crossAxisSpacing;
     }
   }
 
-  //Todo: Currently excluding gap, why??
-  double get getSize => _intrinsicMainAxisExtends.fold(
-      0, (previousValue, element) => previousValue + element);
+  double get totalMainAxisSize {
+    final elementSize=_intrinsicMainAxisExtends.fold(
+        0.0, (previousValue, element) => previousValue + element);
+    double? spacingSize;
 
+    if(_mainAxisSpacing!=0){
+      //Below logic is copied from flutter sliver_grid
+      final mainAxisCount=((_widgetList.length - 1) ~/ _crossAxisCount) + 1;
+      print(mainAxisCount);
+      //mainAxisCount-1 because in 2 mainAxisCount there is only one Spacing, in 3 mainAxisCount, there is only two spacing and so on.
+      spacingSize=(mainAxisCount-1)*_mainAxisSpacing;
+      print(spacingSize);
+    }
+    return elementSize+(spacingSize??0);
+  }
+
+
+  _NormalDelegate get _delegate=>_NormalDelegate(
+    crossAxisCount: _crossAxisCount,
+    crossAxisIntrinsicSize: _intrinsicMainAxisExtends,
+    totalItems: widgetList.length,
+    rebuildCount:_refreshCount,
+    crossAxisSpacing: _crossAxisSpacing,
+    mainAxisSpacing: _mainAxisSpacing,
+  );
 
   List<double> _intrinsicMainAxisExtends = [];
 
@@ -55,21 +81,25 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
   /// till new gridview data is not loaded.
   bool get canDisplayGridView => _beenInitializedOnce || !super.value;
 
+  Size _parentConstraints=Size.zero;
+  Size get parentConstraints=>_parentConstraints;
+
   Widget renderAndCalculate() {
     if (!super.value) return const SizedBox();
     final toCalculateList=_newValueCache??_widgetList;//Todo: document
     if(toCalculateList.isEmpty || _crossAxisCount<=0){
       return const SizedBox();
     }
-    return _intrinsicHeightCalculator.renderAndCalculate(
+    return _normalSizeCalculator.renderAndCalculate(
       _NormalCalculatorInput(
           itemList:toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,
-          onSuccess: () async {
+          onSuccess: (value) async {
+            _parentConstraints=value;
             _intrinsicMainAxisExtends =
-                _intrinsicHeightCalculator.intrinsicMainAxisExtends;
-            refreshCount++;
+                _normalSizeCalculator.intrinsicMainAxisExtends;
+            _refreshCount++;
             _widgetList=toCalculateList;
             super.value=false;
           }),

@@ -37,12 +37,16 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
         ],
       ),
       body: EfficientIntrinsicGridView(
-        preventOverflow: false,
+        crossAxisSpacing: 20,
+        autoMainAxisSize: true,
+        preventOverflow: true,
         preventRebuild: false,
 
         intrinsicController: controller,
         crossAxisCount: 2,
-
+        gridViewInput: GridViewInput(
+         primary: false,
+        ),
         children: [
           for (int i = 0; i < 20; i++)
             Container(

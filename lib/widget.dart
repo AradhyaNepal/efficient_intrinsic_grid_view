@@ -84,7 +84,6 @@ part 'src/builder/builder_intrinsic_controller.dart';
 /// And that's why my package is efficient!
 
 
-//Todo: You need mainAxisSpacing and crossAxisSpacing, else have to worry about verifying that at last item do not apply bottom padding
 abstract class EfficientIntrinsicGridView extends StatelessWidget {
   const EfficientIntrinsicGridView._init({super.key});
 
@@ -93,23 +92,31 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
     Key? key,
     required List<Widget> children,
     required NormalIntrinsicController intrinsicController,
-    bool preventRebuild=true, //Todo: For few milliseconds, on HotRestart we are getting RenderFlex Overflow
+    bool preventRebuild=true,
     GridViewInput? gridViewInput,
-    bool preventOverflow = false,//Todo: This needs to scroll gridview to work. Why?? should i solve it?? or just put on docs??
-    required int crossAxisCount,//Todo: What if crossAxisCount is greater than length
+    bool preventOverflow = false,//Todo: Document
+    required int crossAxisCount,
     Axis scrollDirection=Axis.vertical,
+    double mainAxisSpacing=0,//TOdo: Its interfacing with autoMainAxisSize
+    double crossAxisSpacing=0,
+    bool autoMainAxisSize=false,//Todo: Document. Either never scrollable physics or primary false
   }){
-    assert(crossAxisCount>0,"Cross Axis count must be greater than one");//Todo: Better Assets
+    assert(crossAxisCount>0,"Cross Axis count must be greater than one");
+    assert(mainAxisSpacing>=0,"Main Axis Spacing must be greater than or equal to one");
+    assert(crossAxisSpacing>=0,"Cross Axis Spacing must be greater than or equal to one");
     intrinsicController._onGridviewConstructed(
       preventRebuild: preventRebuild,
       widgets: children,
       axis: scrollDirection,
       crossAxisCount: crossAxisCount,
+      crossAxisSpacing: crossAxisSpacing,
+      mainAxisSpacing: mainAxisSpacing,
     );
     return _NormalIntrinsicGridView(
       controller: intrinsicController,
       preventOverflow: preventOverflow,
       gridViewInput: gridViewInput,
+      autoMainAxisSize: autoMainAxisSize,
     );
   }
 

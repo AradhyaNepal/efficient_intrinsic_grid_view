@@ -17,8 +17,10 @@ typedef _CalculateAndAdd = Future<void> Function({
 ///
 ///
 //Todo: Make it private
+
+typedef _OnSuccess=void Function(Size parent);
 class _NormalCalculatorInput {
-  final VoidCallback onSuccess;
+  final _OnSuccess onSuccess;
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
@@ -38,6 +40,7 @@ class _NormalSizeCalculator {
   final List<double> _intrinsicMainAxisExtends = [];
 
   ///Unmodifiable list, do not try to modify it.
+  //Todo: Extra last element are getting added
   List<double> get intrinsicMainAxisExtends =>
       List.unmodifiable(_intrinsicMainAxisExtends);
 
@@ -121,7 +124,7 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
           axis: widget.initInput.axis,
         );
         if (startIndex >= maxCrossAxisIndex) {
-          widget.initInput.onSuccess();
+          widget.initInput.onSuccess(parentConstrain??Size.zero);
         } else {
           startIndex += widget.initInput.crossAxisItemsCount;
           setState(() {});
