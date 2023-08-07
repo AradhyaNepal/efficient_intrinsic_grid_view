@@ -2,27 +2,29 @@ library efficient_intrinsic_gridview;
 
 import 'package:efficient_intrinsic_gridview/src/builder/builder_size_calculator.dart';
 import 'package:efficient_intrinsic_gridview/src/builder/intrinsic_delegate.dart';
-import 'package:efficient_intrinsic_gridview/src/comman/utils.dart';
-import 'package:efficient_intrinsic_gridview/src/comman/controller_inherited_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math' as math;
-import 'comman/grid_input.dart';
+import 'src/comman/grid_input.dart';
 
-part 'shrink_wrap/grid_using_column_row.dart';
+export 'src/comman/grid_input.dart';
 
-part 'normal/normal_intrinsic_gridview.dart';
+part 'src/comman/controller_inherited_widget.dart';
 
-part 'normal/normal_size_calculator.dart';
+part 'src/shrink_wrap/grid_using_column_row.dart';
 
-part 'normal/normal_delegate.dart';
+part 'src/normal/normal_intrinsic_gridview.dart';
 
-part 'normal/normal_intrinsic_controller.dart';
+part 'src/normal/normal_size_calculator.dart';
 
-part 'builder/builder_intrinsic_gridview.dart';
+part 'src/normal/normal_delegate.dart';
+
+part 'src/normal/normal_intrinsic_controller.dart';
+
+part 'src/builder/builder_intrinsic_gridview.dart';
 
 
-part 'builder/builder_intrinsic_controller.dart';
+part 'src/builder/builder_intrinsic_controller.dart';
 
 
 

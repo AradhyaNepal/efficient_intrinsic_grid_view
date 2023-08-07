@@ -1,5 +1,4 @@
-import 'package:efficient_intrinsic_gridview/efficient_intrinsic_gridview.dart';
-import 'package:flutter/material.dart';
+part of '../../widget.dart';
 
 //Todo: Make it generic
 class ControllerInheritedWidget extends InheritedWidget {

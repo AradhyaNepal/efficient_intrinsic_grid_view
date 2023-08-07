@@ -1,4 +1,4 @@
-part of '../widget.dart';
+part of '../../widget.dart';
 
 
 ///Todo: Make it scrollable
@@ -130,6 +130,10 @@ class _RowWise extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  int getCrossAxisCount(int totalItems,int crossAxisItemsCount){
+    return (totalItems~/crossAxisItemsCount)+((totalItems%crossAxisItemsCount)==0?0:1);
   }
 
 }

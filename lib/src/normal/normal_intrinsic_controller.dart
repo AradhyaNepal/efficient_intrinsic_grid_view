@@ -1,4 +1,4 @@
-part of '../widget.dart';
+part of '../../widget.dart';
 
 //Todo: You are doing too risky task when allowing user to change axis and crossAxisCount,
 //What if concurrency(Although its Sync), and what about user modifying these value themself.
