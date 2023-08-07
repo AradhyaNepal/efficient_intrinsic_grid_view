@@ -1,11 +1,14 @@
 part of '../../widget.dart';
 
-
-
-
-
-typedef _CalculateAndAdd = Future<void> Function({
+///Make abstract classs instead such that on class you only pass one value
+typedef _CalculateOneByOne = Future<void> Function({
   required List<GlobalKey> crossAxisKeyList,
+  required Axis axis,
+});
+
+typedef _CalculateAllAtOnce = Future<void> Function({
+  required List<GlobalKey> keysList,
+  required int crossAxisCount,
   required Axis axis,
 });
 
@@ -18,18 +21,21 @@ typedef _CalculateAndAdd = Future<void> Function({
 ///
 //Todo: Make it private
 
-typedef _OnSuccess=void Function(Size parent);
+typedef _OnSuccess = void Function(Size parent);
+
 class _NormalCalculatorInput {
   final _OnSuccess onSuccess;
   final List<Widget> itemList;
   final int crossAxisItemsCount;
   final Axis axis;
+  final bool calculateAllAtOnce;
 
   _NormalCalculatorInput({
     required this.onSuccess,
     required this.itemList,
     required this.crossAxisItemsCount,
     required this.axis,
+    required this.calculateAllAtOnce,
   });
 }
 
@@ -51,7 +57,8 @@ class _NormalSizeCalculator {
     return Offstage(
       child: _RenderingOffsetWidget(
         initInput: initInput,
-        calculateAndAdd: _calculateAndAdd,
+        calculateOneByOne: _calculateOneByOne,
+        calculateAllAtOnce: _calculateAllAtOnce,
       ),
     );
   }
@@ -61,7 +68,7 @@ class _NormalSizeCalculator {
   ///
   /// Returns Overall max height row accordingly, Eg: If there is 2 item in the list, first item is max height of first Row
   /// And Second item is max height of second height and so on..
-  Future<void> _calculateAndAdd({
+  Future<void> _calculateOneByOne({
     required List<GlobalKey> crossAxisKeyList,
     required Axis axis,
   }) async {
@@ -76,16 +83,59 @@ class _NormalSizeCalculator {
     }
     _intrinsicMainAxisExtends.add(maxMainAxisExtend);
   }
+
+  Future<void> _calculateAllAtOnce({
+    required List<GlobalKey> keysList,
+    required int crossAxisCount,
+    required Axis axis,
+  }) async {
+    await Future.delayed(Duration
+        .zero); //To make sure initRendering had rendered the widgets, and only after rendering below code is run
+    _intrinsicMainAxisExtends
+        .addAll(_allAtOnceInternal(keysList, crossAxisCount, axis));
+  }
+
+  List<double> _allAtOnceInternal(
+      List<GlobalKey<State<StatefulWidget>>> keysList,
+      int crossAxisCount,
+      Axis axis) {
+    List<double> rowMaxHeightList = [];
+    for (int row = 0; row < keysList.length; row += crossAxisCount) {
+      double rowMaxHeight = 0;
+      for (int column = 0; column < crossAxisCount; column++) {
+        int overallIndex = row + column;
+        if (overallIndex > keysList.length - 1) {
+          rowMaxHeightList.add(rowMaxHeight);
+          return rowMaxHeightList;
+        } else {
+          final size = (keysList[overallIndex]
+                  .currentContext
+                  ?.findRenderObject() as RenderBox)
+              .size;
+          double currentHeight =
+              axis == Axis.vertical ? size.height : size.width;
+          if (currentHeight > rowMaxHeight) {
+            rowMaxHeight = currentHeight;
+          }
+        }
+      }
+
+      rowMaxHeightList.add(rowMaxHeight);
+    }
+    return rowMaxHeightList;
+  }
 }
 
 class _RenderingOffsetWidget extends StatefulWidget {
   final _NormalCalculatorInput initInput;
-  final _CalculateAndAdd calculateAndAdd;
+  final _CalculateOneByOne calculateOneByOne;
+  final _CalculateAllAtOnce calculateAllAtOnce;
 
   const _RenderingOffsetWidget({
     super.key,
     required this.initInput,
-    required this.calculateAndAdd,
+    required this.calculateOneByOne,
+    required this.calculateAllAtOnce,
   });
 
   @override
@@ -111,6 +161,42 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
         return const SizedBox();
       });
     } else {
+      if (widget.initInput.calculateAllAtOnce) {
+        //Todo: Make Widget
+        final keysList = <GlobalKey>[];
+        final renderList = <Widget>[];
+        for (int index = 0; index < widget.initInput.itemList.length; index++) {
+          final globalKey = GlobalKey();
+          renderList.add(SizedBox(
+            key: globalKey,
+            child: widget.initInput.itemList[index],
+          ));
+          keysList.add(globalKey);
+        }
+
+        final toRender = Offstage(
+          child: Flex(
+            direction: widget.initInput.axis,
+            children: [
+              for (int i = 0; i < widget.initInput.itemList.length; i++)
+                renderList[i],
+            ],
+          ),
+        );
+        widget
+            .calculateAllAtOnce(
+              axis: widget.initInput.axis,
+              crossAxisCount: widget.initInput.crossAxisItemsCount,
+              keysList: keysList,
+            )
+            .then(
+              (value) => widget.initInput.onSuccess(
+                parentConstrain ?? Size.zero,
+              ),
+            );
+        return toRender;
+      }
+      //Todo: Else below Make Widget
       var endIndexExcluding = startIndex + widget.initInput.crossAxisItemsCount;
       if (endIndexExcluding > maxCrossAxisCount) {
         endIndexExcluding = maxCrossAxisCount;
@@ -119,12 +205,12 @@ class _RenderingOffsetWidgetState extends State<_RenderingOffsetWidget> {
           widget.initInput.itemList.sublist(startIndex, endIndexExcluding);
       _renderingKeyList = renderingList.map((e) => GlobalKey()).toList();
       Future.delayed(Duration.zero, () async {
-        await widget.calculateAndAdd(
+        await widget.calculateOneByOne(
           crossAxisKeyList: _renderingKeyList,
           axis: widget.initInput.axis,
         );
         if (startIndex >= maxCrossAxisIndex) {
-          widget.initInput.onSuccess(parentConstrain??Size.zero);
+          widget.initInput.onSuccess(parentConstrain ?? Size.zero);
         } else {
           startIndex += widget.initInput.crossAxisItemsCount;
           setState(() {});

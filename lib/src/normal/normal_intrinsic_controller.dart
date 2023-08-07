@@ -7,6 +7,7 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
   NormalIntrinsicController() : super(false);
 
   double _mainAxisSpacing=0;
+  bool _calculateAllAtOnce=false;
   double _crossAxisSpacing=0;
   int _refreshCount=0;
   final _normalSizeCalculator= _NormalSizeCalculator();
@@ -38,8 +39,10 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
     required int crossAxisCount,
     required double mainAxisSpacing,
     required double crossAxisSpacing,
+    required bool calculateAllAtOnce,
   }) {
     if (!(_beenInitializedOnce && preventRebuild)) {
+      _calculateAllAtOnce=calculateAllAtOnce;
       _axis = axis;
       _crossAxisCount = crossAxisCount;
       widgetList=widgets;
@@ -92,6 +95,7 @@ class NormalIntrinsicController extends ValueNotifier<bool> {
     }
     return _normalSizeCalculator.renderAndCalculate(
       _NormalCalculatorInput(
+        calculateAllAtOnce: _calculateAllAtOnce,
           itemList:toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,

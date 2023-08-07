@@ -1,5 +1,6 @@
 library efficient_intrinsic_gridview;
 
+
 import 'package:efficient_intrinsic_gridview/src/builder/builder_size_calculator.dart';
 import 'package:efficient_intrinsic_gridview/src/builder/intrinsic_delegate.dart';
 import 'package:flutter/material.dart';
@@ -100,11 +101,13 @@ abstract class EfficientIntrinsicGridView extends StatelessWidget {
     double mainAxisSpacing=0,//TOdo: Its interfacing with autoMainAxisSize
     double crossAxisSpacing=0,
     bool autoMainAxisSize=false,//Todo: Document. Either never scrollable physics or primary false
+    bool calculateAllAtOnce=false,
   }){
     assert(crossAxisCount>0,"Cross Axis count must be greater than one");
     assert(mainAxisSpacing>=0,"Main Axis Spacing must be greater than or equal to one");
     assert(crossAxisSpacing>=0,"Cross Axis Spacing must be greater than or equal to one");
     intrinsicController._onGridviewConstructed(
+      calculateAllAtOnce: calculateAllAtOnce,
       preventRebuild: preventRebuild,
       widgets: children,
       axis: scrollDirection,
