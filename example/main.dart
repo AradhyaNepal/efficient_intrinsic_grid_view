@@ -37,9 +37,10 @@ class _VerticalGridViewExampleState extends State<VerticalGridViewExample> {
       ),
       body: EfficientIntrinsicGridView(
         preventOverflow: false,
-        preventRebuild: false,
+        preventRebuild: true,
         intrinsicController: controller,
         crossAxisCount: 2,
+
         children: [
           for (int i = 0; i < 50; i++)
             Container(
@@ -133,10 +134,11 @@ class _HorizontalGridViewExampleState extends State<HorizontalGridViewExample> {
           ),
         ],
       ),
+
       body: EfficientIntrinsicGridView(
         scrollDirection: Axis.horizontal,
         preventRebuild: false,
-        crossAxisCount: 2,
+        crossAxisCount: 3,
         intrinsicController:controller ,
         children: [
           for (int i = 0; i < 20; i++)

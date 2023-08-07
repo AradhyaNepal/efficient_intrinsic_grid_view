@@ -20,17 +20,11 @@ class IntrinsicController extends ValueNotifier<bool> {
   ///On Value updated, widgets get rebuild,
   ///and intrinsic height are recalculated
   set widgetList(List<Widget> newValue) {
+    _newValueCache=[...newValue];//Todo: Three dot performance vs unmodifiable
     super.value = true;
-    super.addListener(() {//Todo: What about removing the listener because in next change too this lister is being called, concurrency
-      print("Called12345");
-
-
-
-      if (!super.value) {
-        _widgetList = [...newValue];
-      }
-    });
   }
+
+  List<Widget>? _newValueCache;
 
   //Todo: Make it work, and logic verify
   void _onGridviewConstructed({
@@ -42,8 +36,7 @@ class IntrinsicController extends ValueNotifier<bool> {
     if (!(_beenInitializedOnce && preventRebuild)) {
       _axis = axis;
       _crossAxisCount = crossAxisCount;
-      _widgetList=widgets;
-      super.value=true;
+      widgetList=widgets;
     }
   }
 
@@ -69,24 +62,25 @@ class IntrinsicController extends ValueNotifier<bool> {
 
   Widget renderAndCalculate() {
     if (!super.value) return const SizedBox();
-    print("was called");
-
-
-    if(_widgetList.isEmpty || _crossAxisCount<=0){
+    final toCalculateList=_newValueCache??_widgetList;//Todo: document
+    if(toCalculateList.isEmpty || _crossAxisCount<=0){
       return const SizedBox();
     }
     return _intrinsicHeightCalculator.renderAndCalculate(
       CalculatorInput(
-          itemList: _widgetList,
+          itemList:toCalculateList,
           crossAxisItemsCount: _crossAxisCount,
           axis: _axis,
           onSuccess: () async {
             _intrinsicMainAxisExtends =
                 _intrinsicHeightCalculator.intrinsicMainAxisExtends;
             refreshCount++;
+            _widgetList=toCalculateList;
             super.value=false;
           }),
     );
   }
+
+
 
 }
